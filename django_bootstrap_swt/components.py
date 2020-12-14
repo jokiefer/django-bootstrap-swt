@@ -5,32 +5,22 @@ from django_bootstrap_swt.enums import ButtonColorEnum, TooltipPlacementEnum, Pr
     LinkColorEnum, ButtonSizeEnum, ModalSizeEnum
 
 
-PATH_TO_TEMPLATES = "django_bootstrap_swt/components/"
-
-
 class BootstrapComponent:
-    template_name = None
+    def __init__(self, path_to_templates: str = "django_bootstrap_swt/components/", template_name: str = None):
+        self.path_to_templates = path_to_templates
+        self.template_name = template_name
 
     def __str__(self) -> str:
         return self.render()
 
     def __add__(self, other) -> str:
-        return self.render() + str(other)
+        return self.render() + other
 
     def __radd__(self, other) -> str:
-        return str(other) + self.render()
+        return other + self.render()
 
     def __iadd__(self, other) -> str:
-        return str(other) + self.render()
-
-    def __and__(self, other) -> str:
-        return self.render() + str(other)
-
-    def __iand__(self, other) -> str:
-        return str(other) + self.render()
-
-    def __repr__(self) -> str:
-        return self.render()
+        return other + self.render()
 
     def render(self, safe: bool = False) -> str:
         """
@@ -38,7 +28,7 @@ class BootstrapComponent:
         :return:
         rendered template as string | SafeString
         """
-        safe_string = render_to_string(template_name=PATH_TO_TEMPLATES + self.template_name, context=self.__dict__)
+        safe_string = render_to_string(template_name=self.path_to_templates + self.template_name, context=self.__dict__)
         if safe:
             return safe_string
         # render_to_string() returns a SafeString, which implements it's own __add__ function.
@@ -53,6 +43,7 @@ class ProgressBar(BootstrapComponent):
 
     def __init__(self, progress: int = 0, color: ProgressColorEnum = ProgressColorEnum.PRIMARY, animated: bool = True,
                  striped: bool = True):
+        super().__init__()
         self.progress = progress
         self.color = color
         self.animated = animated
@@ -64,6 +55,7 @@ class Badge(BootstrapComponent):
 
     def __init__(self, value: str, badge_color: BadgeColorEnum = BadgeColorEnum.INFO, badge_pill: bool = False,
                  tooltip: str = '', tooltip_placement: str = 'left',):
+        super().__init__()
         self.value = value
         self.badge_color = badge_color
         self.badge_pill = badge_pill
@@ -77,6 +69,7 @@ class Link(BootstrapComponent):
     def __init__(self, url: str, value: str, color: LinkColorEnum = None, needs_perm: str = None,
                  tooltip: str = None, tooltip_placement: TooltipPlacementEnum = None, open_in_new_tab: bool = False,
                  dropdown_item: bool = False):
+        super().__init__()
         self.url = url
         self.value = value
         self.color = color
@@ -93,6 +86,7 @@ class Modal(BootstrapComponent):
     def __init__(self, title: str, modal_body: str, btn_value: str, btn_tooltip: str = None,
                  btn_color: ButtonColorEnum = ButtonColorEnum.INFO, modal_footer: str = None,
                  fade: bool = True, size: ModalSizeEnum = None, fetch_url: str = None):
+        super().__init__()
         self.title = title
         self.modal_body = modal_body
         self.modal_footer = modal_footer
@@ -110,6 +104,7 @@ class Accordion(BootstrapComponent):
 
     def __init__(self, accordion_title: str, accordion_title_center: str = '', accordion_title_right: str = '',
                  accordion_body: str = None, fetch_url: str = None):
+        super().__init__()
         self.accordion_title = accordion_title
         self.accordion_title_center = accordion_title_center
         self.accordion_title_right = accordion_title_right
@@ -129,6 +124,7 @@ class LinkButton(AbstractButton):
     def __init__(self, url: str, value: str, color: ButtonColorEnum = ButtonColorEnum.INFO,
                  needs_perm: str = None, tooltip: str = None, tooltip_placement: TooltipPlacementEnum = None,
                  size: ButtonSizeEnum = None):
+        super().__init__()
         self.url = url
         self.value = value
         self.color = 'btn ' + color.value if color else None
@@ -143,6 +139,7 @@ class Button(AbstractButton):
 
     def __init__(self, value: str, color: ButtonColorEnum = ButtonColorEnum.INFO, data_toggle: str = None,
                  data_target: str = None, aria_expanded: str = None, aria_controls: str = None, tooltip: str = None):
+        super().__init__()
         self.value = value
         self.color = color
         self.data_toggle = data_toggle
@@ -156,6 +153,7 @@ class ButtonGroup(BootstrapComponent):
     template_name = 'button_group.html'
 
     def __init__(self, aria_label: str, buttons: [AbstractButton]):
+        super().__init__()
         self.aria_label = aria_label
         self.buttons = [button.render() for button in buttons]
 
@@ -165,6 +163,7 @@ class Dropdown(BootstrapComponent):
 
     def __init__(self, value: str, items: [Link], color: ButtonColorEnum = ButtonColorEnum.INFO, tooltip: str = None,
                  tooltip_placement: TooltipPlacementEnum = None, header: str = None):
+        super().__init__()
         self.value = value
         self.color = color
         self.items = []
@@ -181,6 +180,7 @@ class Collapsible(BootstrapComponent):
     template_name = 'collapsible.html'
 
     def __init__(self, card_body: str, btn_value: str, collapsible_id: str = None):
+        super().__init__()
         self.card_body = card_body
         self.collapsible_id = collapsible_id if collapsible_id else 'id_' + str(uuid.uuid4())
         self.button = Button(value=btn_value, data_toggle='collapse', data_target=f'#{self.collapsible_id}',
@@ -192,6 +192,7 @@ class LeafletClient(BootstrapComponent):
 
     def __init__(self, polygon: Polygon, add_polygon_as_layer: bool = True, height: str = '50vh',
                  min_height: str = '200px'):
+        super().__init__()
         self.polygon = polygon
         self.add_polygon_as_layer = add_polygon_as_layer
         self.height = height
@@ -203,6 +204,7 @@ class ListGroupItem(BootstrapComponent):
     template_name = 'list_group_item.html'
 
     def __init__(self, left: str = '', center: str = None, right: str = ''):
+        super().__init__()
         self.left = left
         self.center = center
         self.right = right
@@ -212,4 +214,5 @@ class ListGroup(BootstrapComponent):
     template_name = 'list_group.html'
 
     def __init__(self, items: [ListGroupItem]):
+        super().__init__()
         self.items = [item.render() for item in items]
