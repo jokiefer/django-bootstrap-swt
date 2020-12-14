@@ -5,8 +5,11 @@ from django_bootstrap_swt.enums import ButtonColorEnum, TooltipPlacementEnum, Pr
     LinkColorEnum, ButtonSizeEnum, ModalSizeEnum
 
 
+PATH_TO_TEMPLATES = "django_bootstrap_swt/components/"
+
+
 class BootstrapComponent:
-    def __init__(self, path_to_templates: str = "django_bootstrap_swt/components/", template_name: str = None):
+    def __init__(self, path_to_templates: str = PATH_TO_TEMPLATES, template_name: str = None):
         self.path_to_templates = path_to_templates
         self.template_name = template_name
 
@@ -41,6 +44,29 @@ class BootstrapComponent:
         return byte_safe_string.decode(encoding='utf-8')
 
 
+class Tooltip(BootstrapComponent):
+    def __init__(self, title: str, sourounded_component: str, placement: TooltipPlacementEnum = None):
+        super().__init__(template_name="tooltip.html")
+        self.title = title
+        self.sourounded_component = sourounded_component
+        self.placement = placement
+
+
+class TooltipSouroundedComponent(BootstrapComponent):
+    def __init__(self, tooltip: str = None, tooltip_placement: TooltipPlacementEnum = None, template_name: str = None):
+        super(TooltipSouroundedComponent, self).__init__(template_name=template_name,
+                                                         path_to_templates=PATH_TO_TEMPLATES)
+        self.tooltip = tooltip
+        self.tooltip_placement = tooltip_placement
+
+    def render(self, safe: bool = False) -> str:
+        self_rendered = super(TooltipSouroundedComponent, self).render(safe=safe)
+        if self.tooltip:
+            return Tooltip(title=self.tooltip, sourounded_component=self_rendered,
+                           placement=self.tooltip_placement).render(safe=safe)
+        return self_rendered
+
+
 class ProgressBar(BootstrapComponent):
     def __init__(self, progress: int = 0, color: ProgressColorEnum = None, animated: bool = True,
                  striped: bool = True):
@@ -51,13 +77,13 @@ class ProgressBar(BootstrapComponent):
         self.striped = striped
 
 
-class Badge(BootstrapComponent):
-    def __init__(self, value: str, badge_color: BadgeColorEnum = BadgeColorEnum.INFO, badge_pill: bool = False,
-                 tooltip: str = '', tooltip_placement: str = 'left',):
-        super().__init__(template_name="badge.html")
+class Badge(TooltipSouroundedComponent):
+    def __init__(self, value: str, color: BadgeColorEnum = BadgeColorEnum.INFO, pill: bool = False, tooltip: str = None,
+                 tooltip_placement: TooltipPlacementEnum = None):
+        super().__init__(template_name='badge.html')
         self.value = value
-        self.badge_color = badge_color
-        self.badge_pill = badge_pill
+        self.color = color
+        self.pill = pill
         self.tooltip = tooltip
         self.tooltip_placement = tooltip_placement
 

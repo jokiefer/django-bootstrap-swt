@@ -43,7 +43,7 @@ class TooltipPlacementEnum(Enum):
 
 
 class ProgressColorEnum(Enum):
-    PRIMARY = ""
+    PRIMARY = None
     SUCCESS = "bg-success"
     INFO = "bg-info"
     WARNING = "bg-warning"

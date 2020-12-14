@@ -1,8 +1,8 @@
 from unittest import TestCase
 from django.template.loader import render_to_string
 from django.utils.safestring import SafeString
-from django_bootstrap_swt.components import BootstrapComponent, ProgressBar
-from django_bootstrap_swt.enums import ProgressColorEnum
+from django_bootstrap_swt.components import BootstrapComponent, ProgressBar, Badge
+from django_bootstrap_swt.enums import ProgressColorEnum, BadgeColorEnum
 
 MSG_TYPE_AFTER_CONCATENATING_WRONG = 'The type after concatenating is not str.'
 MSG_STRING_CONTENT_WRONG_AFTER_CONCATENATING = 'The content of the string is wrong after concatenating.'
@@ -88,3 +88,27 @@ class TestProgressBar(TestCase):
         progress_bar = ProgressBar(striped=False).render(safe=True)
         expr = render_to_string(template_name='components/progressbar/test_striped_false.html', context={})
         self.assertEqual(first=progress_bar, second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+
+class TestBadge(TestCase):
+    """ This class contains all needed tests for testing Badge class
+    """
+
+    def test_inheritance_of_bootstrap_components(self):
+        self.assertTrue(expr=issubclass(Badge, BootstrapComponent),
+                        msg=MSG_SUBCLASS_DOES_NOT_INHERIT_FROM_BOOTSTRAP_COMPONENT.format('Badge'))
+
+    def test_rendering_with_color_argument(self):
+        badge = Badge(value='1234', color=BadgeColorEnum.PRIMARY).render(safe=True)
+        expr = render_to_string(template_name='components/badge/test_badge_color_primary.html', context={})
+        self.assertEqual(first=badge, second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_pill_argument(self):
+        badge = Badge(value='1234', pill=True).render(safe=True)
+        expr = render_to_string(template_name='components/badge/test_badge_pill_true.html', context={})
+        self.assertEqual(first=badge, second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_tooltip_argument(self):
+        badge = Badge(value='1234', tooltip='nice tooltip').render(safe=True)
+        expr = render_to_string(template_name='components/badge/test_badge_tooltip.html', context={})
+        self.assertEqual(first=badge, second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
