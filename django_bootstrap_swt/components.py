@@ -1,4 +1,6 @@
 import uuid
+from abc import ABC
+
 from django.contrib.gis.geos import Polygon
 from django.template.loader import render_to_string
 from django_bootstrap_swt.enums import ButtonColorEnum, TooltipPlacementEnum, ProgressColorEnum, BadgeColorEnum, \
@@ -6,6 +8,21 @@ from django_bootstrap_swt.enums import ButtonColorEnum, TooltipPlacementEnum, Pr
 
 
 PATH_TO_TEMPLATES = "django_bootstrap_swt/components/"
+
+
+class AbstractPermissionComponent(ABC):
+    """
+    This class is used adds the needs_perm attribute to a component
+    """
+    def __init__(self, needs_perm: str = None):
+        self.needs_perm = needs_perm
+
+
+class AbstractButton(ABC):
+    """
+    This class is used to group other Button representing components
+    """
+    pass
 
 
 class BootstrapComponent:
@@ -78,35 +95,50 @@ class ProgressBar(BootstrapComponent):
 
 
 class Badge(TooltipSouroundedComponent):
-    def __init__(self, value: str, color: BadgeColorEnum = BadgeColorEnum.INFO, pill: bool = False, tooltip: str = None,
-                 tooltip_placement: TooltipPlacementEnum = None):
-        super().__init__(template_name='badge.html')
+    def __init__(self, value: str, color: BadgeColorEnum = BadgeColorEnum.INFO, pill: bool = False, *args, **kwargs):
+        super().__init__(template_name='badge.html', *args, **kwargs)
         self.value = value
         self.color = color
         self.pill = pill
-        self.tooltip = tooltip
-        self.tooltip_placement = tooltip_placement
 
 
-class Link(BootstrapComponent):
-    def __init__(self, url: str, value: str, color: LinkColorEnum = None, needs_perm: str = None,
-                 tooltip: str = None, tooltip_placement: TooltipPlacementEnum = None, open_in_new_tab: bool = False,
-                 dropdown_item: bool = False):
-        super().__init__(template_name="link.html")
+class Link(TooltipSouroundedComponent, AbstractPermissionComponent):
+    def __init__(self, url: str, value: str, color: LinkColorEnum = None, open_in_new_tab: bool = False,
+                 dropdown_item: bool = False, *args, **kwargs):
+        super().__init__(template_name="link.html", *args, **kwargs)
         self.url = url
         self.value = value
         self.color = color
-        self.tooltip = tooltip
-        self.tooltip_placement = tooltip_placement.value if tooltip_placement and tooltip else None
-        self.needs_perm = needs_perm
         self.open_in_new_tab = open_in_new_tab
-        self.dropdown_item = 'dropdown-item' if dropdown_item else ''
+        self.dropdown_item = dropdown_item
+
+
+class LinkButton(AbstractButton, TooltipSouroundedComponent, AbstractPermissionComponent):
+    def __init__(self, url: str, value: str, color: ButtonColorEnum, size: ButtonSizeEnum = None, *args, **kwargs):
+        super().__init__(template_name="link.html", *args, **kwargs)
+        self.url = url
+        self.value = value
+        self.is_btn = True
+        self.color = color
+        self.size = size.value if size else None
+
+
+class Button(AbstractButton, TooltipSouroundedComponent, AbstractPermissionComponent):
+    def __init__(self, value: str, color: ButtonColorEnum, size: ButtonSizeEnum = None, data_toggle: str = None,
+                 data_target: str = None, aria_expanded: str = None, aria_controls: str = None, *args, **kwargs):
+        super().__init__(template_name='button.html', *args, **kwargs)
+        self.value = value
+        self.color = color
+        self.size = size
+        self.data_toggle = data_toggle
+        self.data_target = data_target
+        self.aria_expanded = aria_expanded
+        self.aria_controls = aria_controls
 
 
 class Modal(BootstrapComponent):
-    def __init__(self, title: str, modal_body: str, btn_value: str, btn_tooltip: str = None,
-                 btn_color: ButtonColorEnum = ButtonColorEnum.INFO, modal_footer: str = None,
-                 fade: bool = True, size: ModalSizeEnum = None, fetch_url: str = None):
+    def __init__(self, title: str, modal_body: str, btn_value: str, btn_color: ButtonColorEnum,
+                 modal_footer: str = None, fade: bool = True, size: ModalSizeEnum = None, fetch_url: str = None):
         super().__init__(template_name="modal.html")
         self.title = title
         self.modal_body = modal_body
@@ -116,8 +148,7 @@ class Modal(BootstrapComponent):
         self.modal_id = 'id_' + str(uuid.uuid4())
         self.fetch_url = fetch_url
         self.template_name = "modal_ajax.html" if self.fetch_url else "modal.html"
-        self.button = Button(value=btn_value, color=btn_color, data_toggle='modal', data_target=f'{self.modal_id}',
-                             tooltip=btn_tooltip)
+        self.button = Button(value=btn_value, color=btn_color, data_toggle='modal', data_target=f'{self.modal_id}')
 
 
 class Accordion(BootstrapComponent):
@@ -131,37 +162,6 @@ class Accordion(BootstrapComponent):
         self.fetch_url = fetch_url
         self.template_name = 'accordion_ajax.html' if self.fetch_url else 'accordion.html'
         self.accordion_id = 'id_' + str(uuid.uuid4())
-
-
-class AbstractButton(BootstrapComponent):
-    pass
-
-
-class LinkButton(AbstractButton):
-    def __init__(self, url: str, value: str, color: ButtonColorEnum = ButtonColorEnum.INFO,
-                 needs_perm: str = None, tooltip: str = None, tooltip_placement: TooltipPlacementEnum = None,
-                 size: ButtonSizeEnum = None):
-        super().__init__(template_name="link.html")
-        self.url = url
-        self.value = value
-        self.color = 'btn ' + color.value if color else None
-        self.tooltip = tooltip
-        self.tooltip_placement = tooltip_placement.value if tooltip_placement and tooltip else None
-        self.needs_perm = needs_perm
-        self.size = size.value if size else None
-
-
-class Button(AbstractButton):
-    def __init__(self, value: str, color: ButtonColorEnum = ButtonColorEnum.INFO, data_toggle: str = None,
-                 data_target: str = None, aria_expanded: str = None, aria_controls: str = None, tooltip: str = None):
-        super().__init__(template_name='button.html')
-        self.value = value
-        self.color = color
-        self.data_toggle = data_toggle
-        self.data_target = data_target
-        self.aria_expanded = aria_expanded
-        self.aria_controls = aria_controls
-        self.tooltip = tooltip
 
 
 class ButtonGroup(BootstrapComponent):
