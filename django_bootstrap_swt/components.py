@@ -137,30 +137,30 @@ class Button(AbstractButton, TooltipSouroundedComponent, AbstractPermissionCompo
 
 
 class Modal(BootstrapComponent):
-    def __init__(self, title: str, modal_body: str, btn_value: str, btn_color: ButtonColorEnum,
-                 modal_footer: str = None, fade: bool = True, size: ModalSizeEnum = None, fetch_url: str = None):
+    def __init__(self, title: str, body: str, btn_value: str, btn_color: ButtonColorEnum,
+                 btn_size: ButtonSizeEnum = None, footer: str = None, fade: bool = True,
+                 size: ModalSizeEnum = None, fetch_url: str = None):
         super().__init__(template_name="modal.html")
         self.title = title
-        self.modal_body = modal_body
-        self.modal_footer = modal_footer
+        self.body = body
+        self.footer = footer
         self.fade = fade
         self.size = size
         self.modal_id = 'id_' + str(uuid.uuid4())
         self.fetch_url = fetch_url
-        self.template_name = "modal_ajax.html" if self.fetch_url else "modal.html"
-        self.button = Button(value=btn_value, color=btn_color, data_toggle='modal', data_target=f'{self.modal_id}')
+        self.button = Button(value=btn_value, color=btn_color, size=btn_size, data_toggle='modal',
+                             data_target=f'{self.modal_id}')
 
 
 class Accordion(BootstrapComponent):
     def __init__(self, accordion_title: str, accordion_title_center: str = '', accordion_title_right: str = '',
                  accordion_body: str = None, fetch_url: str = None):
-        super().__init__(template_name='accordion_ajax.html')
+        super().__init__(template_name='accordion.html')
         self.accordion_title = accordion_title
         self.accordion_title_center = accordion_title_center
         self.accordion_title_right = accordion_title_right
         self.accordion_body = accordion_body
         self.fetch_url = fetch_url
-        self.template_name = 'accordion_ajax.html' if self.fetch_url else 'accordion.html'
         self.accordion_id = 'id_' + str(uuid.uuid4())
 
 

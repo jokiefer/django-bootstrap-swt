@@ -34,7 +34,7 @@
                 {% endif %}
             </div>
         </div><!--</card-header-->
-        <div id="{{accordion_id}}_collapsible" class="collapse" aria-labelledby="{{accordion_id}}_heading" data-parent="#{{accordion_id}}">
+        <div id="{{accordion_id}}_collapsible" class="collapse" aria-labelledby="{{accordion_id}}_heading" data-parent="#{{accordion_id}}"{% if fetch_url %} data-url="{{fetch_url}}"{% endif %}>
               <div id="{{accordion_id}}_body" class="card-body">
                 {% block accordion-body %}
                   {% if accordion_body %}
