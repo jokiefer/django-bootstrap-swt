@@ -2,10 +2,10 @@ from unittest import TestCase
 from django.template.loader import render_to_string
 from django.utils.safestring import SafeString
 from django_bootstrap_swt.components import BootstrapComponent, ProgressBar, Badge, Tooltip, TooltipSouroundedComponent, \
-    Modal, Accordion, LinkButton, Link, Button, ButtonGroup, Dropdown, Collapsible, LeafletClient, ListGroupItem, \
+    Modal, Accordion, LinkButton, Link, Button, ButtonGroup, Dropdown, LeafletClient, ListGroupItem, \
     ListGroup
-from django_bootstrap_swt.enums import ProgressColorEnum, BadgeColorEnum, LinkColorEnum, ButtonColorEnum, \
-    ButtonSizeEnum, ModalSizeEnum
+from django_bootstrap_swt.enums import ProgressColorEnum, BadgeColorEnum, ButtonColorEnum, \
+    ButtonSizeEnum, ModalSizeEnum, TextColorEnum, DataToggleEnum
 
 MSG_TYPE_AFTER_CONCATENATING_WRONG = 'The type after concatenating is not str.'
 MSG_STRING_CONTENT_WRONG_AFTER_CONCATENATING = 'The content of the string is wrong after concatenating.'
@@ -24,7 +24,6 @@ BOOTSTRAP_COMPONENT_LIST = [Tooltip,
                             Button,
                             ButtonGroup,
                             Dropdown,
-                            Collapsible,
                             LeafletClient,
                             ListGroupItem,
                             ListGroup]
@@ -140,7 +139,7 @@ class TestLink(StringDiffTestCase):
     """
 
     def test_rendering_with_color_argument(self):
-        first = Link(url='http://example.com', value='http://example.com', color=LinkColorEnum.SUCCESS, ).render(safe=True)
+        first = Link(url='http://example.com', value='http://example.com', color=TextColorEnum.SUCCESS, ).render(safe=True)
         expr = render_to_string(template_name='components/link/test_link_color_success.html', context={})
         self.assertMultiLineEqual(first=first, second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
@@ -178,7 +177,7 @@ class TestButton(StringDiffTestCase):
         self.assertMultiLineEqual(first=first, second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
     def test_rendering_with_data_toggle_argument(self):
-        first = Button(value='nice button', color=ButtonColorEnum.SUCCESS, data_toggle='modal').render(safe=True)
+        first = Button(value='nice button', color=ButtonColorEnum.SUCCESS, data_toggle=DataToggleEnum.MODAL).render(safe=True)
         expr = render_to_string(template_name='components/button/test_button_data_toggle_modal.html', context={})
         self.assertMultiLineEqual(first=first, second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
@@ -188,8 +187,8 @@ class TestButton(StringDiffTestCase):
         self.assertMultiLineEqual(first=first, second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
     def test_rendering_with_area_expand_argument(self):
-        first = Button(value='nice button', color=ButtonColorEnum.SUCCESS, aria_expanded='modal').render(safe=True)
-        expr = render_to_string(template_name='components/button/test_button_aria_expanded_modal.html', context={})
+        first = Button(value='nice button', color=ButtonColorEnum.SUCCESS, aria_expanded=True).render(safe=True)
+        expr = render_to_string(template_name='components/button/test_button_aria_expanded_true.html', context={})
         self.assertMultiLineEqual(first=first, second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
     def test_rendering_with_area_controls_argument(self):
@@ -228,4 +227,22 @@ class TestModal(StringDiffTestCase):
                       btn_color=ButtonColorEnum.SUCCESS, fetch_url='http://example.com')
         expr = render_to_string(template_name='components/modal/test_modal_fetch_url.html',
                                 context={"modal_id": first.modal_id})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+
+class TestCard(StringDiffTestCase):
+    # todo
+    pass
+
+
+class TestAccordion(StringDiffTestCase):
+    """ This class contains all needed tests for testing Accordion class
+    """
+
+    def test_rendering_with_accordion_title_center_argument(self):
+        return
+        # todo:
+        first = Accordion(accordion_title='nice accordion', accordion_title_center='nice center')
+        expr = render_to_string(template_name='components/modal/test_accordion_center.html',
+                                context={"accordion_id": first.accordion_id})
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)

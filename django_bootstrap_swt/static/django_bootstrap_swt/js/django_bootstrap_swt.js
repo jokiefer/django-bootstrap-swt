@@ -26,7 +26,7 @@ function modalAjaxInit( parent ) {
 
 function collapseAjaxInit( parent ) {
     $(".collapse[data-url]", parent).on('shown.bs.collapse', function( event ) {
-        bootstrapComponentAjaxCall(event.target, $('.card-body', event.target));
+        bootstrapComponentAjaxCall(event.target, $(event.target));
     });
 }
 

@@ -4,8 +4,7 @@ from abc import ABC
 from django.contrib.gis.geos import Polygon
 from django.template.loader import render_to_string
 from django_bootstrap_swt.enums import ButtonColorEnum, TooltipPlacementEnum, ProgressColorEnum, BadgeColorEnum, \
-    LinkColorEnum, ButtonSizeEnum, ModalSizeEnum
-
+    ButtonSizeEnum, ModalSizeEnum, TextColorEnum, BackgroundColorEnum, BorderColorEnum, DataToggleEnum
 
 PATH_TO_TEMPLATES = "django_bootstrap_swt/components/"
 
@@ -103,7 +102,7 @@ class Badge(TooltipSouroundedComponent):
 
 
 class Link(TooltipSouroundedComponent, AbstractPermissionComponent):
-    def __init__(self, url: str, value: str, color: LinkColorEnum = None, open_in_new_tab: bool = False,
+    def __init__(self, url: str, value: str, color: TextColorEnum = None, open_in_new_tab: bool = False,
                  dropdown_item: bool = False, *args, **kwargs):
         super().__init__(template_name="link.html", *args, **kwargs)
         self.url = url
@@ -124,16 +123,20 @@ class LinkButton(AbstractButton, TooltipSouroundedComponent, AbstractPermissionC
 
 
 class Button(AbstractButton, TooltipSouroundedComponent, AbstractPermissionComponent):
-    def __init__(self, value: str, color: ButtonColorEnum, size: ButtonSizeEnum = None, data_toggle: str = None,
-                 data_target: str = None, aria_expanded: str = None, aria_controls: str = None, *args, **kwargs):
+    def __init__(self, value: str, color: ButtonColorEnum = None, size: ButtonSizeEnum = None,
+                 data_toggle: DataToggleEnum = None,
+                 data_target: str = None, aria_expanded: bool = None, aria_controls: str = None,
+                 additional_classes: [str] = None, *args, **kwargs):
         super().__init__(template_name='button.html', *args, **kwargs)
         self.value = value
         self.color = color
         self.size = size
         self.data_toggle = data_toggle
         self.data_target = data_target
-        self.aria_expanded = aria_expanded
+        if aria_expanded:
+            self.aria_expanded = 'true' if aria_expanded else 'false'
         self.aria_controls = aria_controls
+        self.additional_classes = additional_classes
 
 
 class Modal(BootstrapComponent):
@@ -148,20 +151,89 @@ class Modal(BootstrapComponent):
         self.size = size
         self.modal_id = 'id_' + str(uuid.uuid4())
         self.fetch_url = fetch_url
-        self.button = Button(value=btn_value, color=btn_color, size=btn_size, data_toggle='modal',
+        self.button = Button(value=btn_value, color=btn_color, size=btn_size, data_toggle=DataToggleEnum.MODAL,
                              data_target=f'{self.modal_id}')
 
 
-class Accordion(BootstrapComponent):
-    def __init__(self, accordion_title: str, accordion_title_center: str = '', accordion_title_right: str = '',
-                 accordion_body: str = None, fetch_url: str = None):
-        super().__init__(template_name='accordion.html')
-        self.accordion_title = accordion_title
-        self.accordion_title_center = accordion_title_center
-        self.accordion_title_right = accordion_title_right
-        self.accordion_body = accordion_body
+class Cell(BootstrapComponent):
+    def __init__(self):
+        super(Cell, self).__init__(template_name='cell.html')
+
+
+class Row(BootstrapComponent):
+    def __init__(self, cells: [Cell]):
+        super(Row, self).__init__(template_name='row.html')
+        self.cells = cells
+
+
+class CardHeader(BootstrapComponent):
+    def __init__(self, content: str, header_id: uuid = None, bg_color: BackgroundColorEnum = None,
+                 text_color: TextColorEnum = None, border: BorderColorEnum = None, *args, **kwargs):
+        super(CardHeader, self).__init__(template_name='card_header.html', *args, **kwargs)
+        self.content = content
+        self.header_id = 'id_' + str(header_id) if header_id else 'id_' + str(uuid.uuid4())
+        self.bg_color = bg_color
+        self.border = border
+        self.text_color = text_color
+
+
+class CardBody(BootstrapComponent):
+    def __init__(self, content: str, body_id: uuid = None, bg_color: BackgroundColorEnum = None,
+                 text_color: TextColorEnum = None, border: BorderColorEnum = None, fetch_url: str = None,
+                 data_parent: str = None, aria_labelledby: str = None, collapsible: bool = False,
+                 additional_classes: [str] = None,
+                 *args, **kwargs):
+        super(CardBody, self).__init__(template_name='card_body.html', *args, **kwargs)
+        self.content = content
+        self.body_id = 'id_' + str(body_id) if body_id else 'id_' + str(uuid.uuid4())
+        self.bg_color = bg_color
+        self.text_color = text_color
+        self.border = border
         self.fetch_url = fetch_url
+        self.data_parent = data_parent
+        self.aria_labelledby = aria_labelledby
+        self.collapsible = collapsible
+        self.additional_classes = additional_classes
+
+
+class CardFooter(BootstrapComponent):
+    def __init__(self, content: str, bg_color: BackgroundColorEnum = None, text_color: TextColorEnum = None,
+                 border: BorderColorEnum = None,  *args, **kwargs):
+        super(CardFooter, self).__init__(template_name='card_footer.html', *args, **kwargs)
+        self.content = content
+        self.bg_color = bg_color
+        self.border = border
+        self.text_color = text_color
+
+
+class Card(BootstrapComponent):
+    def __init__(self, bg_color: BackgroundColorEnum = None, text_color: TextColorEnum = None,
+                 border: BorderColorEnum = None, header: CardHeader = None, body: CardBody = None,
+                 footer: CardFooter = None, *args, **kwargs):
+        super(Card, self).__init__(template_name='card.html', *args, **kwargs)
+        self.bg_color = bg_color
+        self.border = border
+        self.text_color = text_color
+        self.header = header
+        self.body = body
+        self.footer = footer
+
+
+class Accordion(BootstrapComponent):
+    def __init__(self, btn_value: str, content: str = None, fetch_url: str = None,
+                 header_bg_color: BackgroundColorEnum = None, body_bg_color: BackgroundColorEnum = None):
+        super().__init__(template_name='accordion.html')
         self.accordion_id = 'id_' + str(uuid.uuid4())
+        self.content = content
+        card_body = CardBody(content=content, fetch_url=fetch_url, bg_color=body_bg_color,
+                             data_parent=self.accordion_id)
+        accordion_btn = Button(value=f'<i class="fa" aria-hidden="true"></i>{btn_value}',
+                               data_toggle=DataToggleEnum.COLLAPSE,
+                               data_target=card_body.body_id, additional_classes=['collapse'], aria_expanded=False,
+                               aria_controls=card_body.body_id)
+        card_header = CardHeader(content=f'{accordion_btn}', bg_color=header_bg_color)
+        card_body.aria_labelledby = card_header.header_id
+        self.card = Card(header=card_header, card_body=card_body)
 
 
 class ButtonGroup(BootstrapComponent):
@@ -185,15 +257,6 @@ class Dropdown(BootstrapComponent):
         self.tooltip_placement = tooltip_placement.value if tooltip_placement and tooltip else None
         self.header = header
         self.dropdown_id = 'id_' + str(uuid.uuid4())
-
-
-class Collapsible(BootstrapComponent):
-    def __init__(self, card_body: str, btn_value: str, collapsible_id: str = None):
-        super().__init__(template_name='collapsible.html')
-        self.card_body = card_body
-        self.collapsible_id = collapsible_id if collapsible_id else 'id_' + str(uuid.uuid4())
-        self.button = Button(value=btn_value, data_toggle='collapse', data_target=f'#{self.collapsible_id}',
-                             aria_expanded='false', aria_controls=self.collapsible_id).render()
 
 
 class LeafletClient(BootstrapComponent):

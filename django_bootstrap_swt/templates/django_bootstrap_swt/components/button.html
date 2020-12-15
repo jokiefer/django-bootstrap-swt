@@ -1,3 +1,3 @@
-<button class="btn {{ color.value }}{% if size %} {{size.value}}{% endif %}" type="button"{% if data_toggle %} data-toggle="{{data_toggle}}"{% endif %}{% if data_target %} data-target="#{{data_target}}"{% endif %}{% if aria_expanded %} aria-expanded="{{aria_expanded}}"{% endif %}{% if aria_controls %} aria-controls="{{aria_controls}}"{% endif %}>
+<button class="btn{% if color %} {{ color.value }}{% endif %}{% if size %} {{size.value}}{% endif %}{% if additional_classes %}{% for cls in additional_classes %} {{cls}}{% endfor %}{% endif %}" type="button"{% if data_toggle %} data-toggle="{{data_toggle.value}}"{% endif %}{% if data_target %} data-target="#{{data_target}}"{% endif %}{% if aria_expanded %} aria-expanded="{{aria_expanded}}"{% endif %}{% if aria_controls %} aria-controls="{{aria_controls}}"{% endif %}>
     {{ value|safe }}
 </button>
