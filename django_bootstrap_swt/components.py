@@ -1,10 +1,8 @@
 import uuid
 from abc import ABC
-
-from django.db.models.expressions import Col
 from django.template.loader import render_to_string
 from django_bootstrap_swt.enums import ButtonColorEnum, TooltipPlacementEnum, ProgressColorEnum, BadgeColorEnum, \
-    ButtonSizeEnum, ModalSizeEnum, TextColorEnum, BackgroundColorEnum, BorderColorEnum, DataToggleEnum, ColEnum
+    ButtonSizeEnum, ModalSizeEnum, TextColorEnum, BackgroundColorEnum, BorderColorEnum, DataToggleEnum
 
 PATH_TO_TEMPLATES = "django_bootstrap_swt/components/"
 
@@ -146,7 +144,7 @@ class Button(AbstractButton, TooltipSouroundedComponent, AbstractPermissionCompo
         self.additional_classes = additional_classes
 
 
-class Modal(BootstrapComponent, AbstractPermissionComponent, TooltipSouroundedComponent):
+class Modal(BootstrapComponent, AbstractPermissionComponent):
     def __init__(self, title: str, body: str, btn_value: str, btn_color: ButtonColorEnum,
                  btn_size: ButtonSizeEnum = None, footer: str = None, fade: bool = True,
                  size: ModalSizeEnum = None, fetch_url: str = None):
@@ -217,7 +215,8 @@ class Accordion(BootstrapComponent, AbstractPermissionComponent):
     def __init__(self, btn_value: str, content: str = None, fetch_url: str = None,
                  header_bg_color: BackgroundColorEnum = None, body_bg_color: BackgroundColorEnum = None,
                  header_text_color: TextColorEnum = None, body_text_color: TextColorEnum = None,
-                 header_border: BorderColorEnum = None, body_border: BorderColorEnum = None,):
+                 header_border: BorderColorEnum = None, body_border: BorderColorEnum = None,
+                 header_center_content: str = None, header_right_content: str = None):
         super().__init__(template_name='accordion.html')
         self.accordion_id = 'id_' + str(uuid.uuid4())
         self.card_body = CardBody(content=content,
@@ -227,13 +226,18 @@ class Accordion(BootstrapComponent, AbstractPermissionComponent):
                                   additional_classes=['collapse'],
                                   text_color=body_text_color,
                                   border=body_border)
+
         self.accordion_btn = Button(value=f'<i class="fa" aria-hidden="true"></i> {btn_value}',
                                     data_toggle=DataToggleEnum.COLLAPSE,
                                     data_target=self.card_body.body_id,
                                     additional_classes=['collapsed', 'accordion', 'text-left'],
                                     aria_expanded=False,
                                     aria_controls=self.card_body.body_id)
-        self.card_header = CardHeader(content=f'{self.accordion_btn}',
+        default_header_row = DefaultHeaderRow(content_left=self.accordion_btn.render(),
+                                              content_center=header_center_content,
+                                              content_right=header_right_content).render()
+
+        self.card_header = CardHeader(content=default_header_row,
                                       bg_color=header_bg_color,
                                       text_color=header_text_color,
                                       border=header_border)
@@ -284,7 +288,7 @@ class Div(BootstrapComponent):
 
 
 class DefaultHeaderRow(BootstrapComponent):
-    def __init__(self, content_left: str, content_center: str, content_right: str):
+    def __init__(self, content_left: str, content_right: str, content_center: str = None):
         super(DefaultHeaderRow, self).__init__()
         self.content_left = content_left
         self.content_center = content_center
@@ -292,8 +296,14 @@ class DefaultHeaderRow(BootstrapComponent):
 
     def render(self, safe: bool = False) -> str:
         col_left = Div(content=self.content_left, additional_classes=['col-sm', 'text-left'])
-        col_center = Div(content=self.content_center, additional_classes=['col-sm', 'text-center'])
-        col_right = Div(content=self.content_right, additional_classes=['col-sm', 'text-right'])
+        if self.content_center:
+            col_center = Div(content=self.content_center, additional_classes=['col-sm', 'text-center'])
+        else:
+            col_center = ''
+        if self.content_right:
+            col_right = Div(content=self.content_right, additional_classes=['col-sm', 'text-right'])
+        else:
+            col_right = ''
         content = col_left + col_center + col_right
         return Div(content=content, additional_classes=['row']).render(safe=safe)
 
