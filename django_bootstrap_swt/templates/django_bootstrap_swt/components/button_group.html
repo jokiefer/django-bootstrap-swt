@@ -1,5 +1,5 @@
 <div class="btn-group" role="group" aria-label="{{aria_label}}">
     {% for button in buttons %}
-        {{button}}
+        {{button|safe}}
     {% endfor %}
 </div>

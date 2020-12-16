@@ -1,7 +1,5 @@
 import uuid
 from abc import ABC
-
-from django.contrib.gis.geos import Polygon
 from django.template.loader import render_to_string
 from django_bootstrap_swt.enums import ButtonColorEnum, TooltipPlacementEnum, ProgressColorEnum, BadgeColorEnum, \
     ButtonSizeEnum, ModalSizeEnum, TextColorEnum, BackgroundColorEnum, BorderColorEnum, DataToggleEnum
@@ -68,7 +66,7 @@ class Tooltip(BootstrapComponent):
         self.placement = placement
 
 
-class TooltipSouroundedComponent(BootstrapComponent):
+class TooltipSouroundedComponent(BootstrapComponent, ABC):
     def __init__(self, tooltip: str = None, tooltip_placement: TooltipPlacementEnum = None, template_name: str = None):
         super(TooltipSouroundedComponent, self).__init__(template_name=template_name,
                                                          path_to_templates=PATH_TO_TEMPLATES)
@@ -126,7 +124,7 @@ class Button(AbstractButton, TooltipSouroundedComponent, AbstractPermissionCompo
     def __init__(self, value: str, color: ButtonColorEnum = None, size: ButtonSizeEnum = None,
                  data_toggle: DataToggleEnum = None,
                  data_target: str = None, aria_expanded: bool = None, aria_controls: str = None,
-                 additional_classes: [str] = None, *args, **kwargs):
+                 aria_haspopup: bool = None, additional_classes: [str] = None, *args, **kwargs):
         super().__init__(template_name='button.html', *args, **kwargs)
         self.value = value
         self.color = color
@@ -137,7 +135,12 @@ class Button(AbstractButton, TooltipSouroundedComponent, AbstractPermissionCompo
             self.aria_expanded = 'true'
         elif aria_expanded == False:
             self.aria_expanded = 'false'
+        if aria_haspopup == True:
+            self.aria_haspopup = 'true'
+        elif aria_haspopup == False:
+            self.aria_haspopup = 'false'
         self.aria_controls = aria_controls
+        self.button_id = 'id_' + str(uuid.uuid4())
         self.additional_classes = additional_classes
 
 
@@ -233,13 +236,13 @@ class Accordion(BootstrapComponent):
                                   additional_classes=['collapse'],
                                   text_color=body_text_color,
                                   border=body_border)
-        accordion_btn = Button(value=f'<i class="fa" aria-hidden="true"></i> {btn_value}',
-                               data_toggle=DataToggleEnum.COLLAPSE,
-                               data_target=self.card_body.body_id,
-                               additional_classes=['collapsed', 'accordion', 'text-left'],
-                               aria_expanded=False,
-                               aria_controls=self.card_body.body_id)
-        self.card_header = CardHeader(content=f'{accordion_btn}',
+        self.accordion_btn = Button(value=f'<i class="fa" aria-hidden="true"></i> {btn_value}',
+                                    data_toggle=DataToggleEnum.COLLAPSE,
+                                    data_target=self.card_body.body_id,
+                                    additional_classes=['collapsed', 'accordion', 'text-left'],
+                                    aria_expanded=False,
+                                    aria_controls=self.card_body.body_id)
+        self.card_header = CardHeader(content=f'{self.accordion_btn}',
                                       bg_color=header_bg_color,
                                       text_color=header_text_color,
                                       border=header_border)
@@ -254,42 +257,30 @@ class ButtonGroup(BootstrapComponent):
         self.buttons = [button.render() for button in buttons]
 
 
-class Dropdown(BootstrapComponent):
-    def __init__(self, value: str, items: [Link], color: ButtonColorEnum = ButtonColorEnum.INFO, tooltip: str = None,
-                 tooltip_placement: TooltipPlacementEnum = None, header: str = None):
+class Dropdown(TooltipSouroundedComponent):
+    def __init__(self, value: str, items: [Link], color: ButtonColorEnum = ButtonColorEnum.INFO, header: str = None):
         super().__init__(template_name='dropdown.html')
         self.value = value
         self.color = color
+        self.button = Button(value=value, color=color, additional_classes=['dropdown-toggle'],
+                             data_toggle=DataToggleEnum.DROPDOWN, aria_haspopup=True, aria_expanded=False)
+        self.button.data_target = self.button.button_id
+        self.dropdown_id = self.button.button_id
         self.items = []
         for item in items:
             item.dropdown_item = 'dropdown-item'
             self.items.append(item.render())
-        self.tooltip = tooltip
-        self.tooltip_placement = tooltip_placement.value if tooltip_placement and tooltip else None
         self.header = header
-        self.dropdown_id = 'id_' + str(uuid.uuid4())
-
-
-class LeafletClient(BootstrapComponent):
-    def __init__(self, polygon: Polygon, add_polygon_as_layer: bool = True, height: str = '50vh',
-                 min_height: str = '200px'):
-        super().__init__(template_name='leaflet_client.html')
-        self.polygon = polygon
-        self.add_polygon_as_layer = add_polygon_as_layer
-        self.height = height
-        self.min_height = min_height
-        self.map_id = 'id_' + str(uuid.uuid4()).replace("-", "_")
 
 
 class ListGroupItem(BootstrapComponent):
-    def __init__(self, left: str = '', center: str = None, right: str = ''):
+    def __init__(self, content: str):
         super().__init__(template_name='list_group_item.html')
-        self.left = left
-        self.center = center
-        self.right = right
+        self.content = content
 
 
 class ListGroup(BootstrapComponent):
     def __init__(self, items: [ListGroupItem]):
         super().__init__(template_name='list_group.html')
         self.items = [item.render() for item in items]
+

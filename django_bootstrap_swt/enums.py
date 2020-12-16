@@ -93,3 +93,4 @@ class BorderColorEnum(Enum):
 class DataToggleEnum(Enum):
     COLLAPSE = "collapse"
     MODAL = "modal"
+    DROPDOWN = "dropdown"
