@@ -1,8 +1,10 @@
 import uuid
 from abc import ABC
+
+from django.db.models.expressions import Col
 from django.template.loader import render_to_string
 from django_bootstrap_swt.enums import ButtonColorEnum, TooltipPlacementEnum, ProgressColorEnum, BadgeColorEnum, \
-    ButtonSizeEnum, ModalSizeEnum, TextColorEnum, BackgroundColorEnum, BorderColorEnum, DataToggleEnum
+    ButtonSizeEnum, ModalSizeEnum, TextColorEnum, BackgroundColorEnum, BorderColorEnum, DataToggleEnum, ColEnum
 
 PATH_TO_TEMPLATES = "django_bootstrap_swt/components/"
 
@@ -144,7 +146,7 @@ class Button(AbstractButton, TooltipSouroundedComponent, AbstractPermissionCompo
         self.additional_classes = additional_classes
 
 
-class Modal(BootstrapComponent):
+class Modal(BootstrapComponent, AbstractPermissionComponent, TooltipSouroundedComponent):
     def __init__(self, title: str, body: str, btn_value: str, btn_color: ButtonColorEnum,
                  btn_size: ButtonSizeEnum = None, footer: str = None, fade: bool = True,
                  size: ModalSizeEnum = None, fetch_url: str = None):
@@ -158,17 +160,6 @@ class Modal(BootstrapComponent):
         self.fetch_url = fetch_url
         self.button = Button(value=btn_value, color=btn_color, size=btn_size, data_toggle=DataToggleEnum.MODAL,
                              data_target=f'{self.modal_id}')
-
-
-class Cell(BootstrapComponent):
-    def __init__(self):
-        super(Cell, self).__init__(template_name='cell.html')
-
-
-class Row(BootstrapComponent):
-    def __init__(self, cells: [Cell]):
-        super(Row, self).__init__(template_name='row.html')
-        self.cells = cells
 
 
 class CardHeader(BootstrapComponent):
@@ -222,7 +213,7 @@ class Card(BootstrapComponent):
         self.text_color = text_color
 
 
-class Accordion(BootstrapComponent):
+class Accordion(BootstrapComponent, AbstractPermissionComponent):
     def __init__(self, btn_value: str, content: str = None, fetch_url: str = None,
                  header_bg_color: BackgroundColorEnum = None, body_bg_color: BackgroundColorEnum = None,
                  header_text_color: TextColorEnum = None, body_text_color: TextColorEnum = None,
@@ -283,4 +274,26 @@ class ListGroup(BootstrapComponent):
     def __init__(self, items: [ListGroupItem]):
         super().__init__(template_name='list_group.html')
         self.items = [item.render() for item in items]
+
+
+class Div(BootstrapComponent):
+    def __init__(self, content: str, additional_classes: [str] = None):
+        super(Div, self).__init__(template_name='div.html')
+        self.content = content
+        self.additional_classes = additional_classes
+
+
+class DefaultHeaderRow(BootstrapComponent):
+    def __init__(self, content_left: str, content_center: str, content_right: str):
+        super(DefaultHeaderRow, self).__init__()
+        self.content_left = content_left
+        self.content_center = content_center
+        self.content_right = content_right
+
+    def render(self, safe: bool = False) -> str:
+        col_left = Div(content=self.content_left, additional_classes=['col-sm', 'text-left'])
+        col_center = Div(content=self.content_center, additional_classes=['col-sm', 'text-center'])
+        col_right = Div(content=self.content_right, additional_classes=['col-sm', 'text-right'])
+        content = col_left + col_center + col_right
+        return Div(content=content, additional_classes=['row']).render(safe=safe)
 
