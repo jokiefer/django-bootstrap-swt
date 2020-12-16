@@ -1,17 +1,17 @@
+import uuid
 from unittest import TestCase
 from django.template.loader import render_to_string
 from django.utils.safestring import SafeString
-from django_bootstrap_swt.components import BootstrapComponent, ProgressBar, Badge, Tooltip, TooltipSouroundedComponent, \
-    Modal, Accordion, LinkButton, Link, Button, ButtonGroup, Dropdown, LeafletClient, ListGroupItem, \
-    ListGroup
+from django_bootstrap_swt.components import BootstrapComponent, ProgressBar, Badge, Tooltip, \
+    TooltipSouroundedComponent, Modal, Accordion, LinkButton, Link, Button, ButtonGroup, Dropdown, LeafletClient, \
+    ListGroupItem, ListGroup, CardHeader, CardFooter, CardBody, Card
 from django_bootstrap_swt.enums import ProgressColorEnum, BadgeColorEnum, ButtonColorEnum, \
-    ButtonSizeEnum, ModalSizeEnum, TextColorEnum, DataToggleEnum
+    ButtonSizeEnum, ModalSizeEnum, TextColorEnum, DataToggleEnum, BackgroundColorEnum, BorderColorEnum
 
 MSG_TYPE_AFTER_CONCATENATING_WRONG = 'The type after concatenating is not str.'
 MSG_STRING_CONTENT_WRONG_AFTER_CONCATENATING = 'The content of the string is wrong after concatenating.'
 MSG_SUBCLASS_DOES_NOT_INHERIT_FROM_BOOTSTRAP_COMPONENT = 'The class "{}" does not inherit from "BootstrapComponent"'
 MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT = 'The rendered string is not correct.'
-
 
 BOOTSTRAP_COMPONENT_LIST = [Tooltip,
                             TooltipSouroundedComponent,
@@ -31,7 +31,7 @@ BOOTSTRAP_COMPONENT_LIST = [Tooltip,
 
 class StringDiffTestCase(TestCase):
     def setUp(self) -> None:
-        self.maxDiff = 1000
+        self.maxDiff = None
 
 
 class TestBoostrapComponent(TestCase):
@@ -50,7 +50,7 @@ class TestBoostrapComponent(TestCase):
         new_string = self.bootstrap_component + self.test_string
         self.assertIsInstance(obj=new_string, cls=str,
                               msg=MSG_TYPE_AFTER_CONCATENATING_WRONG)
-        self.assertEqual(first=self.dummy_content+self.test_string, second=new_string,
+        self.assertEqual(first=self.dummy_content + self.test_string, second=new_string,
                          msg=MSG_STRING_CONTENT_WRONG_AFTER_CONCATENATING)
 
     def test_magic_radd(self):
@@ -88,6 +88,7 @@ class TestBoostrapComponent(TestCase):
 class TestInheritance(TestCase):
     """ This class contains all needed tests for testing inheritance of super classes.
     """
+
     def test_inheritance_of_bootstrap_components(self):
         for Component in BOOTSTRAP_COMPONENT_LIST:
             self.assertTrue(expr=issubclass(Component, BootstrapComponent),
@@ -139,7 +140,8 @@ class TestLink(StringDiffTestCase):
     """
 
     def test_rendering_with_color_argument(self):
-        first = Link(url='http://example.com', value='http://example.com', color=TextColorEnum.SUCCESS, ).render(safe=True)
+        first = Link(url='http://example.com', value='http://example.com', color=TextColorEnum.SUCCESS, ).render(
+            safe=True)
         expr = render_to_string(template_name='components/link/test_link_color_success.html', context={})
         self.assertMultiLineEqual(first=first, second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
@@ -177,7 +179,8 @@ class TestButton(StringDiffTestCase):
         self.assertMultiLineEqual(first=first, second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
     def test_rendering_with_data_toggle_argument(self):
-        first = Button(value='nice button', color=ButtonColorEnum.SUCCESS, data_toggle=DataToggleEnum.MODAL).render(safe=True)
+        first = Button(value='nice button', color=ButtonColorEnum.SUCCESS, data_toggle=DataToggleEnum.MODAL).render(
+            safe=True)
         expr = render_to_string(template_name='components/button/test_button_data_toggle_modal.html', context={})
         self.assertMultiLineEqual(first=first, second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
@@ -230,19 +233,225 @@ class TestModal(StringDiffTestCase):
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
 
+class TestCardHeader(StringDiffTestCase):
+    """ This class contains all needed tests for testing CardHeader class
+    """
+
+    def test_rendering_with_header_id(self):
+        header_id = uuid.uuid4()
+        first = CardHeader(content='nice header', header_id=header_id)
+        expr = render_to_string(template_name='components/card/header/test_card_header_header_id.html',
+                                context={"header_id": 'id_' + str(header_id)})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_bg_color(self):
+        first = CardHeader(content='nice header', bg_color=BackgroundColorEnum.SUCCESS)
+        expr = render_to_string(template_name='components/card/header/test_card_header_bg_color_success.html',
+                                context={"header_id": first.header_id})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_text_color(self):
+        first = CardHeader(content='nice header', text_color=TextColorEnum.SUCCESS)
+        expr = render_to_string(template_name='components/card/header/test_card_header_text_color_success.html',
+                                context={"header_id": first.header_id})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_border_color(self):
+        first = CardHeader(content='nice header', border=BorderColorEnum.SUCCESS)
+        expr = render_to_string(template_name='components/card/header/test_card_header_border_color_success.html',
+                                context={"header_id": first.header_id})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+
+class TestCardFooter(StringDiffTestCase):
+    """ This class contains all needed tests for testing CardHeader class
+    """
+
+    def test_rendering_with_bg_color(self):
+        first = CardFooter(content='nice footer', bg_color=BackgroundColorEnum.SUCCESS)
+        expr = render_to_string(template_name='components/card/footer/test_card_footer_bg_color_success.html',
+                                context={})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_text_color(self):
+        first = CardFooter(content='nice footer', text_color=TextColorEnum.SUCCESS)
+        expr = render_to_string(template_name='components/card/footer/test_card_footer_text_color_success.html',
+                                context={})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_border_color(self):
+        first = CardFooter(content='nice footer', border=BorderColorEnum.SUCCESS)
+        expr = render_to_string(template_name='components/card/footer/test_card_footer_border_color_success.html',
+                                context={})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+
+class TestCardBody(StringDiffTestCase):
+    """ This class contains all needed tests for testing CardHeader class
+    """
+
+    def test_rendering_with_body_id(self):
+        body_id = uuid.uuid4()
+        first = CardBody(content='nice body', body_id=body_id)
+        expr = render_to_string(template_name='components/card/body/test_card_body_body_id.html',
+                                context={"body_id": 'id_' + str(body_id)})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_bg_color(self):
+        first = CardBody(content='nice body', bg_color=BackgroundColorEnum.SUCCESS)
+        expr = render_to_string(template_name='components/card/body/test_card_body_bg_color_success.html',
+                                context={"body_id": first.body_id})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_text_color(self):
+        first = CardBody(content='nice body', text_color=TextColorEnum.SUCCESS)
+        expr = render_to_string(template_name='components/card/body/test_card_body_text_color_success.html',
+                                context={"body_id": first.body_id})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_border_color(self):
+        first = CardBody(content='nice body', border=BorderColorEnum.SUCCESS)
+        expr = render_to_string(template_name='components/card/body/test_card_body_border_color_success.html',
+                                context={"body_id": first.body_id})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_fetch_url(self):
+        first = CardBody(content='nice body', fetch_url='http://example.com')
+        expr = render_to_string(template_name='components/card/body/test_card_body_fetch_url.html',
+                                context={"body_id": first.body_id})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_data_parent(self):
+        first = CardBody(content='nice body', data_parent='id_1234')
+        expr = render_to_string(template_name='components/card/body/test_card_body_data_parent.html',
+                                context={"body_id": first.body_id})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_aria_labelledby(self):
+        first = CardBody(content='nice body', aria_labelledby='id_1234')
+        expr = render_to_string(template_name='components/card/body/test_card_body_aria_labelledby.html',
+                                context={"body_id": first.body_id})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_additional_classes(self):
+        first = CardBody(content='nice body', additional_classes=['collapse', ])
+        expr = render_to_string(template_name='components/card/body/test_card_body_additional_classes.html',
+                                context={"body_id": first.body_id})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+
 class TestCard(StringDiffTestCase):
-    # todo
-    pass
+    """ This class contains all needed tests for testing CardHeader class
+    """
+
+    def setUp(self) -> None:
+        super(TestCard, self).setUp()
+        self.header = CardHeader(content='nice header')
+        self.body = CardBody(content='nice body')
+        self.footer = CardFooter(content='nice footer')
+
+    def test_rendering_with_header_argument(self):
+        first = Card(body=self.body, header=self.header)
+        expr = render_to_string(template_name='components/card/card/test_card_with_header.html',
+                                context={"header_id": self.header.header_id,
+                                         "body_id": self.body.body_id})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_footer_argument(self):
+        first = Card(body=self.body, footer=self.footer)
+        expr = render_to_string(template_name='components/card/card/test_card_with_footer.html',
+                                context={"body_id": self.body.body_id})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_bg_color_argument(self):
+        first = Card(body=self.body, bg_color=BackgroundColorEnum.SUCCESS)
+        expr = render_to_string(template_name='components/card/card/test_card_bg_color_success.html',
+                                context={"body_id": self.body.body_id})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_text_color_argument(self):
+        first = Card(body=self.body, text_color=TextColorEnum.SUCCESS)
+        expr = render_to_string(template_name='components/card/card/test_card_text_color_success.html',
+                                context={"body_id": self.body.body_id})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_border_color_argument(self):
+        first = Card(body=self.body, border=BorderColorEnum.SUCCESS)
+        expr = render_to_string(template_name='components/card/card/test_card_border_color_success.html',
+                                context={"body_id": self.body.body_id})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
 
 class TestAccordion(StringDiffTestCase):
-    """ This class contains all needed tests for testing Accordion class
+    """ This class contains all needed tests for testing CardHeader class
     """
 
-    def test_rendering_with_accordion_title_center_argument(self):
-        return
-        # todo:
-        first = Accordion(accordion_title='nice accordion', accordion_title_center='nice center')
-        expr = render_to_string(template_name='components/modal/test_accordion_center.html',
-                                context={"accordion_id": first.accordion_id})
+    def setUp(self) -> None:
+        super(TestAccordion, self).setUp()
+        self.header = CardHeader(content='nice header')
+        self.body = CardBody(content='nice body')
+        self.footer = CardFooter(content='nice footer')
+
+    def test_rendering_with_content_argument(self):
+        first = Accordion(btn_value='nice button', content='nice body')
+        expr = render_to_string(template_name='components/accordion/test_accordion_with_content.html',
+                                context={"accordion_id": first.accordion_id,
+                                         "card_header_id": first.card_header.header_id,
+                                         "card_body_id": first.card_body.body_id})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_fetch_url_argument(self):
+        first = Accordion(btn_value='nice button', fetch_url='http://example.com')
+        expr = render_to_string(template_name='components/accordion/test_accordion_fetch_url.html',
+                                context={"accordion_id": first.accordion_id,
+                                         "card_header_id": first.card_header.header_id,
+                                         "card_body_id": first.card_body.body_id})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_header_bg_color_argument(self):
+        first = Accordion(btn_value='nice button', header_bg_color=BackgroundColorEnum.SUCCESS)
+        expr = render_to_string(template_name='components/accordion/test_accordion_header_bg_color.html',
+                                context={"accordion_id": first.accordion_id,
+                                         "card_header_id": first.card_header.header_id,
+                                         "card_body_id": first.card_body.body_id})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_body_bg_color_argument(self):
+        first = Accordion(btn_value='nice button', body_bg_color=BackgroundColorEnum.SUCCESS)
+        expr = render_to_string(template_name='components/accordion/test_accordion_body_bg_color.html',
+                                context={"accordion_id": first.accordion_id,
+                                         "card_header_id": first.card_header.header_id,
+                                         "card_body_id": first.card_body.body_id})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_header_text_color_argument(self):
+        first = Accordion(btn_value='nice button', header_text_color=TextColorEnum.SUCCESS)
+        expr = render_to_string(template_name='components/accordion/test_accordion_header_text_color.html',
+                                context={"accordion_id": first.accordion_id,
+                                         "card_header_id": first.card_header.header_id,
+                                         "card_body_id": first.card_body.body_id})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_body_text_color_argument(self):
+        first = Accordion(btn_value='nice button', body_text_color=TextColorEnum.SUCCESS)
+        expr = render_to_string(template_name='components/accordion/test_accordion_body_text_color.html',
+                                context={"accordion_id": first.accordion_id,
+                                         "card_header_id": first.card_header.header_id,
+                                         "card_body_id": first.card_body.body_id})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_header_border_argument(self):
+        first = Accordion(btn_value='nice button', header_border=BorderColorEnum.SUCCESS)
+        expr = render_to_string(template_name='components/accordion/test_accordion_header_border_color.html',
+                                context={"accordion_id": first.accordion_id,
+                                         "card_header_id": first.card_header.header_id,
+                                         "card_body_id": first.card_body.body_id})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_body_border_argument(self):
+        first = Accordion(btn_value='nice button', body_border=BorderColorEnum.SUCCESS)
+        expr = render_to_string(template_name='components/accordion/test_accordion_body_border_color.html',
+                                context={"accordion_id": first.accordion_id,
+                                         "card_header_id": first.card_header.header_id,
+                                         "card_body_id": first.card_body.body_id})
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)

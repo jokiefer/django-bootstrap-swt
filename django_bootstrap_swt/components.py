@@ -133,8 +133,10 @@ class Button(AbstractButton, TooltipSouroundedComponent, AbstractPermissionCompo
         self.size = size
         self.data_toggle = data_toggle
         self.data_target = data_target
-        if aria_expanded:
-            self.aria_expanded = 'true' if aria_expanded else 'false'
+        if aria_expanded == True:
+            self.aria_expanded = 'true'
+        elif aria_expanded == False:
+            self.aria_expanded = 'false'
         self.aria_controls = aria_controls
         self.additional_classes = additional_classes
 
@@ -178,10 +180,9 @@ class CardHeader(BootstrapComponent):
 
 
 class CardBody(BootstrapComponent):
-    def __init__(self, content: str, body_id: uuid = None, bg_color: BackgroundColorEnum = None,
+    def __init__(self, content: str = None, body_id: uuid = None, bg_color: BackgroundColorEnum = None,
                  text_color: TextColorEnum = None, border: BorderColorEnum = None, fetch_url: str = None,
-                 data_parent: str = None, aria_labelledby: str = None, collapsible: bool = False,
-                 additional_classes: [str] = None,
+                 data_parent: str = None, aria_labelledby: str = None, additional_classes: [str] = None,
                  *args, **kwargs):
         super(CardBody, self).__init__(template_name='card_body.html', *args, **kwargs)
         self.content = content
@@ -192,7 +193,6 @@ class CardBody(BootstrapComponent):
         self.fetch_url = fetch_url
         self.data_parent = data_parent
         self.aria_labelledby = aria_labelledby
-        self.collapsible = collapsible
         self.additional_classes = additional_classes
 
 
@@ -207,33 +207,44 @@ class CardFooter(BootstrapComponent):
 
 
 class Card(BootstrapComponent):
-    def __init__(self, bg_color: BackgroundColorEnum = None, text_color: TextColorEnum = None,
-                 border: BorderColorEnum = None, header: CardHeader = None, body: CardBody = None,
-                 footer: CardFooter = None, *args, **kwargs):
+    def __init__(self, body: CardBody, header: CardHeader = None, footer: CardFooter = None,
+                 bg_color: BackgroundColorEnum = None, text_color: TextColorEnum = None,
+                 border: BorderColorEnum = None, *args, **kwargs):
         super(Card, self).__init__(template_name='card.html', *args, **kwargs)
+        self.body = body
+        self.header = header
+        self.footer = footer
         self.bg_color = bg_color
         self.border = border
         self.text_color = text_color
-        self.header = header
-        self.body = body
-        self.footer = footer
 
 
 class Accordion(BootstrapComponent):
     def __init__(self, btn_value: str, content: str = None, fetch_url: str = None,
-                 header_bg_color: BackgroundColorEnum = None, body_bg_color: BackgroundColorEnum = None):
+                 header_bg_color: BackgroundColorEnum = None, body_bg_color: BackgroundColorEnum = None,
+                 header_text_color: TextColorEnum = None, body_text_color: TextColorEnum = None,
+                 header_border: BorderColorEnum = None, body_border: BorderColorEnum = None,):
         super().__init__(template_name='accordion.html')
         self.accordion_id = 'id_' + str(uuid.uuid4())
-        self.content = content
-        card_body = CardBody(content=content, fetch_url=fetch_url, bg_color=body_bg_color,
-                             data_parent=self.accordion_id)
-        accordion_btn = Button(value=f'<i class="fa" aria-hidden="true"></i>{btn_value}',
+        self.card_body = CardBody(content=content,
+                                  fetch_url=fetch_url,
+                                  bg_color=body_bg_color,
+                                  data_parent=self.accordion_id,
+                                  additional_classes=['collapse'],
+                                  text_color=body_text_color,
+                                  border=body_border)
+        accordion_btn = Button(value=f'<i class="fa" aria-hidden="true"></i> {btn_value}',
                                data_toggle=DataToggleEnum.COLLAPSE,
-                               data_target=card_body.body_id, additional_classes=['collapse'], aria_expanded=False,
-                               aria_controls=card_body.body_id)
-        card_header = CardHeader(content=f'{accordion_btn}', bg_color=header_bg_color)
-        card_body.aria_labelledby = card_header.header_id
-        self.card = Card(header=card_header, card_body=card_body)
+                               data_target=self.card_body.body_id,
+                               additional_classes=['collapsed', 'accordion', 'text-left'],
+                               aria_expanded=False,
+                               aria_controls=self.card_body.body_id)
+        self.card_header = CardHeader(content=f'{accordion_btn}',
+                                      bg_color=header_bg_color,
+                                      text_color=header_text_color,
+                                      border=header_border)
+        self.card_body.aria_labelledby = self.card_header.header_id
+        self.content = Card(header=self.card_header, body=self.card_body)
 
 
 class ButtonGroup(BootstrapComponent):

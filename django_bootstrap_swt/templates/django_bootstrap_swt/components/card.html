@@ -1,5 +1,5 @@
 <div class="card{% if bg_color %} {{bg_color.value}}{%endif%}{% if border %} {{border.value}}{%endif%}{% if text_color %} {{text_color.value}}{%endif%}">
-    {% if header %}{{header}}{% endif %}
-    {% if body %}{{body}}{% endif %}
-    {% if footer %}{{footer}}{% endif %}
-</div><!--</card-->
+    {% if header %}{{header|safe}}{% endif %}
+    {% if body %}{{body|safe}}{% endif %}
+    {% if footer %}{{footer|safe}}{% endif %}
+</div>
