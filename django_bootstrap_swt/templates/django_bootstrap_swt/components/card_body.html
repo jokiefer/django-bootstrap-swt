@@ -1,0 +1,3 @@
+<div {%if body_id %}id="{{body_id}}" {% endif %}class="card-body{% if bg_color %} {{bg_color.value}}{%endif%}{% if border %} {{border.value}}{%endif%}{% if text_color %} {{text_color.value}}{%endif%}{% if additional_classes %}{% for cls in additional_classes %} {{cls}}{% endfor %}{% endif %}"{% if data_parent %} data-parent="#{{data_parent}}"{% endif %}{% if fetch_url %} data-url="{{fetch_url}}"{% endif %}{% if aria_labelledby %} aria-labelledby="{{aria_labelledby}}"{% endif %}>
+    {% if content %}{{content|safe}}{% endif %}
+</div>

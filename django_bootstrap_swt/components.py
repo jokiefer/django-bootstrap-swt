@@ -1,33 +1,43 @@
 import uuid
-from django.contrib.gis.geos import Polygon
+from abc import ABC
 from django.template.loader import render_to_string
 from django_bootstrap_swt.enums import ButtonColorEnum, TooltipPlacementEnum, ProgressColorEnum, BadgeColorEnum, \
-    LinkColorEnum, ButtonSizeEnum, ModalSizeEnum
-
+    ButtonSizeEnum, ModalSizeEnum, TextColorEnum, BackgroundColorEnum, BorderColorEnum, DataToggleEnum
 
 PATH_TO_TEMPLATES = "django_bootstrap_swt/components/"
 
 
+class AbstractPermissionComponent(ABC):
+    """
+    This class is used adds the needs_perm attribute to a component
+    """
+    def __init__(self, needs_perm: str = None):
+        self.needs_perm = needs_perm
+
+
+class AbstractButton(ABC):
+    """
+    This class is used to group other Button representing components
+    """
+    pass
+
+
 class BootstrapComponent:
-    template_name = None
+    def __init__(self, path_to_templates: str = PATH_TO_TEMPLATES, template_name: str = None):
+        self.path_to_templates = path_to_templates
+        self.template_name = template_name
 
     def __str__(self) -> str:
         return self.render()
 
     def __add__(self, other) -> str:
-        return self.render() + str(other)
+        return self.render() + other
 
     def __radd__(self, other) -> str:
-        return str(other) + self.render()
+        return other + self.render()
 
     def __iadd__(self, other) -> str:
-        return str(other) + self.render()
-
-    def __and__(self, other) -> str:
-        return self.render() + str(other)
-
-    def __iand__(self, other) -> str:
-        return str(other) + self.render()
+        return other + self.render()
 
     def __repr__(self) -> str:
         return self.render()
@@ -38,7 +48,7 @@ class BootstrapComponent:
         :return:
         rendered template as string | SafeString
         """
-        safe_string = render_to_string(template_name=PATH_TO_TEMPLATES + self.template_name, context=self.__dict__)
+        safe_string = render_to_string(template_name=self.path_to_templates + self.template_name, context=self.__dict__)
         if safe:
             return safe_string
         # render_to_string() returns a SafeString, which implements it's own __add__ function.
@@ -48,168 +58,252 @@ class BootstrapComponent:
         return byte_safe_string.decode(encoding='utf-8')
 
 
-class ProgressBar(BootstrapComponent):
-    template_name = "progressbar.html"
+class Tooltip(BootstrapComponent):
+    def __init__(self, title: str, sourounded_component: str, placement: TooltipPlacementEnum = None):
+        super().__init__(template_name="tooltip.html")
+        self.title = title
+        self.sourounded_component = sourounded_component
+        self.placement = placement
 
-    def __init__(self, progress: int = 0, color: ProgressColorEnum = ProgressColorEnum.PRIMARY, animated: bool = True,
+
+class TooltipSouroundedComponent(BootstrapComponent, ABC):
+    def __init__(self, tooltip: str = None, tooltip_placement: TooltipPlacementEnum = None, template_name: str = None):
+        super(TooltipSouroundedComponent, self).__init__(template_name=template_name,
+                                                         path_to_templates=PATH_TO_TEMPLATES)
+        self.tooltip = tooltip
+        self.tooltip_placement = tooltip_placement
+
+    def render(self, safe: bool = False) -> str:
+        self_rendered = super(TooltipSouroundedComponent, self).render(safe=safe)
+        if self.tooltip:
+            return Tooltip(title=self.tooltip, sourounded_component=self_rendered,
+                           placement=self.tooltip_placement).render(safe=safe)
+        return self_rendered
+
+
+class ProgressBar(BootstrapComponent):
+    def __init__(self, progress: int = 0, color: ProgressColorEnum = None, animated: bool = True,
                  striped: bool = True):
+        super().__init__(template_name="progressbar.html")
         self.progress = progress
         self.color = color
         self.animated = animated
         self.striped = striped
 
 
-class Badge(BootstrapComponent):
-    template_name = "badge.html"
-
-    def __init__(self, value: str, badge_color: BadgeColorEnum = BadgeColorEnum.INFO, badge_pill: bool = False,
-                 tooltip: str = '', tooltip_placement: str = 'left',):
+class Badge(TooltipSouroundedComponent):
+    def __init__(self, value: str, color: BadgeColorEnum = BadgeColorEnum.INFO, pill: bool = False, *args, **kwargs):
+        super().__init__(template_name='badge.html', *args, **kwargs)
         self.value = value
-        self.badge_color = badge_color
-        self.badge_pill = badge_pill
-        self.tooltip = tooltip
-        self.tooltip_placement = tooltip_placement
+        self.color = color
+        self.pill = pill
 
 
-class Link(BootstrapComponent):
-    template_name = "link.html"
-
-    def __init__(self, url: str, value: str, color: LinkColorEnum = None, needs_perm: str = None,
-                 tooltip: str = None, tooltip_placement: TooltipPlacementEnum = None, open_in_new_tab: bool = False,
-                 dropdown_item: bool = False):
+class Link(TooltipSouroundedComponent, AbstractPermissionComponent):
+    def __init__(self, url: str, value: str, color: TextColorEnum = None, open_in_new_tab: bool = False,
+                 dropdown_item: bool = False, *args, **kwargs):
+        super().__init__(template_name="link.html", *args, **kwargs)
         self.url = url
         self.value = value
         self.color = color
-        self.tooltip = tooltip
-        self.tooltip_placement = tooltip_placement.value if tooltip_placement and tooltip else None
-        self.needs_perm = needs_perm
         self.open_in_new_tab = open_in_new_tab
-        self.dropdown_item = 'dropdown-item' if dropdown_item else ''
+        self.dropdown_item = dropdown_item
 
 
-class Modal(BootstrapComponent):
-    template_name = "modal.html"
+class LinkButton(AbstractButton, TooltipSouroundedComponent, AbstractPermissionComponent):
+    def __init__(self, url: str, value: str, color: ButtonColorEnum, size: ButtonSizeEnum = None, *args, **kwargs):
+        super().__init__(template_name="link.html", *args, **kwargs)
+        self.url = url
+        self.value = value
+        self.is_btn = True
+        self.color = color
+        self.size = size.value if size else None
 
-    def __init__(self, title: str, modal_body: str, btn_value: str, btn_tooltip: str = None,
-                 btn_color: ButtonColorEnum = ButtonColorEnum.INFO, modal_footer: str = None,
-                 fade: bool = True, size: ModalSizeEnum = None, fetch_url: str = None):
+
+class Button(AbstractButton, TooltipSouroundedComponent, AbstractPermissionComponent):
+    def __init__(self, value: str, color: ButtonColorEnum = None, size: ButtonSizeEnum = None,
+                 data_toggle: DataToggleEnum = None,
+                 data_target: str = None, aria_expanded: bool = None, aria_controls: str = None,
+                 aria_haspopup: bool = None, additional_classes: [str] = None, *args, **kwargs):
+        super().__init__(template_name='button.html', *args, **kwargs)
+        self.value = value
+        self.color = color
+        self.size = size
+        self.data_toggle = data_toggle
+        self.data_target = data_target
+        if aria_expanded == True:
+            self.aria_expanded = 'true'
+        elif aria_expanded == False:
+            self.aria_expanded = 'false'
+        if aria_haspopup == True:
+            self.aria_haspopup = 'true'
+        elif aria_haspopup == False:
+            self.aria_haspopup = 'false'
+        self.aria_controls = aria_controls
+        self.button_id = 'id_' + str(uuid.uuid4())
+        self.additional_classes = additional_classes
+
+
+class Modal(BootstrapComponent, AbstractPermissionComponent):
+    def __init__(self, title: str, body: str, btn_value: str, btn_color: ButtonColorEnum,
+                 btn_size: ButtonSizeEnum = None, footer: str = None, fade: bool = True,
+                 size: ModalSizeEnum = None, fetch_url: str = None):
+        super().__init__(template_name="modal.html")
         self.title = title
-        self.modal_body = modal_body
-        self.modal_footer = modal_footer
+        self.body = body
+        self.footer = footer
         self.fade = fade
         self.size = size
         self.modal_id = 'id_' + str(uuid.uuid4())
         self.fetch_url = fetch_url
-        self.template_name = "modal_ajax.html" if self.fetch_url else "modal.html"
-        self.button = Button(value=btn_value, color=btn_color, data_toggle='modal', data_target=f'{self.modal_id}',
-                             tooltip=btn_tooltip)
+        self.button = Button(value=btn_value, color=btn_color, size=btn_size, data_toggle=DataToggleEnum.MODAL,
+                             data_target=f'{self.modal_id}')
 
 
-class Accordion(BootstrapComponent):
-    template_name = 'accordion_ajax.html'
+class CardHeader(BootstrapComponent):
+    def __init__(self, content: str, header_id: uuid = None, bg_color: BackgroundColorEnum = None,
+                 text_color: TextColorEnum = None, border: BorderColorEnum = None, *args, **kwargs):
+        super(CardHeader, self).__init__(template_name='card_header.html', *args, **kwargs)
+        self.content = content
+        self.header_id = 'id_' + str(header_id) if header_id else 'id_' + str(uuid.uuid4())
+        self.bg_color = bg_color
+        self.border = border
+        self.text_color = text_color
 
-    def __init__(self, accordion_title: str, accordion_title_center: str = '', accordion_title_right: str = '',
-                 accordion_body: str = None, fetch_url: str = None):
-        self.accordion_title = accordion_title
-        self.accordion_title_center = accordion_title_center
-        self.accordion_title_right = accordion_title_right
-        self.accordion_body = accordion_body
+
+class CardBody(BootstrapComponent):
+    def __init__(self, content: str = None, body_id: uuid = None, bg_color: BackgroundColorEnum = None,
+                 text_color: TextColorEnum = None, border: BorderColorEnum = None, fetch_url: str = None,
+                 data_parent: str = None, aria_labelledby: str = None, additional_classes: [str] = None,
+                 *args, **kwargs):
+        super(CardBody, self).__init__(template_name='card_body.html', *args, **kwargs)
+        self.content = content
+        self.body_id = 'id_' + str(body_id) if body_id else 'id_' + str(uuid.uuid4())
+        self.bg_color = bg_color
+        self.text_color = text_color
+        self.border = border
         self.fetch_url = fetch_url
-        self.template_name = 'accordion_ajax.html' if self.fetch_url else 'accordion.html'
+        self.data_parent = data_parent
+        self.aria_labelledby = aria_labelledby
+        self.additional_classes = additional_classes
+
+
+class CardFooter(BootstrapComponent):
+    def __init__(self, content: str, bg_color: BackgroundColorEnum = None, text_color: TextColorEnum = None,
+                 border: BorderColorEnum = None,  *args, **kwargs):
+        super(CardFooter, self).__init__(template_name='card_footer.html', *args, **kwargs)
+        self.content = content
+        self.bg_color = bg_color
+        self.border = border
+        self.text_color = text_color
+
+
+class Card(BootstrapComponent):
+    def __init__(self, body: CardBody, header: CardHeader = None, footer: CardFooter = None,
+                 bg_color: BackgroundColorEnum = None, text_color: TextColorEnum = None,
+                 border: BorderColorEnum = None, *args, **kwargs):
+        super(Card, self).__init__(template_name='card.html', *args, **kwargs)
+        self.body = body
+        self.header = header
+        self.footer = footer
+        self.bg_color = bg_color
+        self.border = border
+        self.text_color = text_color
+
+
+class Accordion(BootstrapComponent, AbstractPermissionComponent):
+    def __init__(self, btn_value: str, content: str = None, fetch_url: str = None,
+                 header_bg_color: BackgroundColorEnum = None, body_bg_color: BackgroundColorEnum = None,
+                 header_text_color: TextColorEnum = None, body_text_color: TextColorEnum = None,
+                 header_border: BorderColorEnum = None, body_border: BorderColorEnum = None,
+                 header_center_content: str = None, header_right_content: str = None):
+        super().__init__(template_name='accordion.html')
         self.accordion_id = 'id_' + str(uuid.uuid4())
+        self.card_body = CardBody(content=content,
+                                  fetch_url=fetch_url,
+                                  bg_color=body_bg_color,
+                                  data_parent=self.accordion_id,
+                                  additional_classes=['collapse'],
+                                  text_color=body_text_color,
+                                  border=body_border)
 
+        self.accordion_btn = Button(value=f'<i class="fa" aria-hidden="true"></i> {btn_value}',
+                                    data_toggle=DataToggleEnum.COLLAPSE,
+                                    data_target=self.card_body.body_id,
+                                    additional_classes=['collapsed', 'accordion', 'text-left'],
+                                    aria_expanded=False,
+                                    aria_controls=self.card_body.body_id)
+        default_header_row = DefaultHeaderRow(content_left=self.accordion_btn.render(),
+                                              content_center=header_center_content,
+                                              content_right=header_right_content).render()
 
-class AbstractButton(BootstrapComponent):
-    pass
-
-
-class LinkButton(AbstractButton):
-    template_name = "link.html"
-
-    def __init__(self, url: str, value: str, color: ButtonColorEnum = ButtonColorEnum.INFO,
-                 needs_perm: str = None, tooltip: str = None, tooltip_placement: TooltipPlacementEnum = None,
-                 size: ButtonSizeEnum = None):
-        self.url = url
-        self.value = value
-        self.color = 'btn ' + color.value if color else None
-        self.tooltip = tooltip
-        self.tooltip_placement = tooltip_placement.value if tooltip_placement and tooltip else None
-        self.needs_perm = needs_perm
-        self.size = size.value if size else None
-
-
-class Button(AbstractButton):
-    template_name = 'button.html'
-
-    def __init__(self, value: str, color: ButtonColorEnum = ButtonColorEnum.INFO, data_toggle: str = None,
-                 data_target: str = None, aria_expanded: str = None, aria_controls: str = None, tooltip: str = None):
-        self.value = value
-        self.color = color
-        self.data_toggle = data_toggle
-        self.data_target = data_target
-        self.aria_expanded = aria_expanded
-        self.aria_controls = aria_controls
-        self.tooltip = tooltip
+        self.card_header = CardHeader(content=default_header_row,
+                                      bg_color=header_bg_color,
+                                      text_color=header_text_color,
+                                      border=header_border)
+        self.card_body.aria_labelledby = self.card_header.header_id
+        self.content = Card(header=self.card_header, body=self.card_body)
 
 
 class ButtonGroup(BootstrapComponent):
-    template_name = 'button_group.html'
-
     def __init__(self, aria_label: str, buttons: [AbstractButton]):
+        super().__init__(template_name='button_group.html')
         self.aria_label = aria_label
         self.buttons = [button.render() for button in buttons]
 
 
-class Dropdown(BootstrapComponent):
-    template_name = 'dropdown.html'
-
-    def __init__(self, value: str, items: [Link], color: ButtonColorEnum = ButtonColorEnum.INFO, tooltip: str = None,
-                 tooltip_placement: TooltipPlacementEnum = None, header: str = None):
+class Dropdown(TooltipSouroundedComponent):
+    def __init__(self, value: str, items: [Link], color: ButtonColorEnum = ButtonColorEnum.INFO, header: str = None):
+        super().__init__(template_name='dropdown.html')
         self.value = value
         self.color = color
+        self.button = Button(value=value, color=color, additional_classes=['dropdown-toggle'],
+                             data_toggle=DataToggleEnum.DROPDOWN, aria_haspopup=True, aria_expanded=False)
+        self.button.data_target = self.button.button_id
+        self.dropdown_id = self.button.button_id
         self.items = []
         for item in items:
             item.dropdown_item = 'dropdown-item'
             self.items.append(item.render())
-        self.tooltip = tooltip
-        self.tooltip_placement = tooltip_placement.value if tooltip_placement and tooltip else None
         self.header = header
-        self.dropdown_id = 'id_' + str(uuid.uuid4())
-
-
-class Collapsible(BootstrapComponent):
-    template_name = 'collapsible.html'
-
-    def __init__(self, card_body: str, btn_value: str, collapsible_id: str = None):
-        self.card_body = card_body
-        self.collapsible_id = collapsible_id if collapsible_id else 'id_' + str(uuid.uuid4())
-        self.button = Button(value=btn_value, data_toggle='collapse', data_target=f'#{self.collapsible_id}',
-                             aria_expanded='false', aria_controls=self.collapsible_id).render()
-
-
-class LeafletClient(BootstrapComponent):
-    template_name = 'leaflet_client.html'
-
-    def __init__(self, polygon: Polygon, add_polygon_as_layer: bool = True, height: str = '50vh',
-                 min_height: str = '200px'):
-        self.polygon = polygon
-        self.add_polygon_as_layer = add_polygon_as_layer
-        self.height = height
-        self.min_height = min_height
-        self.map_id = 'id_' + str(uuid.uuid4()).replace("-", "_")
 
 
 class ListGroupItem(BootstrapComponent):
-    template_name = 'list_group_item.html'
-
-    def __init__(self, left: str = '', center: str = None, right: str = ''):
-        self.left = left
-        self.center = center
-        self.right = right
+    def __init__(self, content: str):
+        super().__init__(template_name='list_group_item.html')
+        self.content = content
 
 
 class ListGroup(BootstrapComponent):
-    template_name = 'list_group.html'
-
     def __init__(self, items: [ListGroupItem]):
+        super().__init__(template_name='list_group.html')
         self.items = [item.render() for item in items]
+
+
+class Div(BootstrapComponent):
+    def __init__(self, content: str, additional_classes: [str] = None):
+        super(Div, self).__init__(template_name='div.html')
+        self.content = content
+        self.additional_classes = additional_classes
+
+
+class DefaultHeaderRow(BootstrapComponent):
+    def __init__(self, content_left: str, content_right: str, content_center: str = None):
+        super(DefaultHeaderRow, self).__init__()
+        self.content_left = content_left
+        self.content_center = content_center
+        self.content_right = content_right
+
+    def render(self, safe: bool = False) -> str:
+        col_left = Div(content=self.content_left, additional_classes=['col-sm', 'text-left'])
+        if self.content_center:
+            col_center = Div(content=self.content_center, additional_classes=['col-sm', 'text-center'])
+        else:
+            col_center = ''
+        if self.content_right:
+            col_right = Div(content=self.content_right, additional_classes=['col-sm', 'text-right'])
+        else:
+            col_right = ''
+        content = col_left + col_center + col_right
+        return Div(content=content, additional_classes=['row']).render(safe=safe)
+

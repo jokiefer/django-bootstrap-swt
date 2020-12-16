@@ -7,6 +7,7 @@ class ModalSizeEnum(Enum):
 
 
 class ButtonColorEnum(Enum):
+
     PRIMARY = "btn-primary"
     SECONDARY = "btn-secondary"
     INFO = "btn-info"
@@ -26,15 +27,6 @@ class ButtonSizeEnum(Enum):
     LARGE = "btn-lg"
 
 
-class LinkColorEnum(Enum):
-    PRIMARY = "text-primary"
-    SECONDARY = "text-secondary"
-    INFO = "text-info"
-    SUCCESS = "text-success"
-    WARNING = "text-warning"
-    DANGER = "text-danger"
-
-
 class TooltipPlacementEnum(Enum):
     LEFT = "left"
     TOP = "top"
@@ -43,7 +35,7 @@ class TooltipPlacementEnum(Enum):
 
 
 class ProgressColorEnum(Enum):
-    PRIMARY = ""
+    PRIMARY = None
     SUCCESS = "bg-success"
     INFO = "bg-info"
     WARNING = "bg-warning"
@@ -59,3 +51,46 @@ class BadgeColorEnum(Enum):
     INFO = "badge-info"
     LIGHT = "badge-light"
     DARK = "badge-dark"
+
+
+class BackgroundColorEnum(Enum):
+    PRIMARY = "bg-primary"
+    SECONDARY = "bg-secondary"
+    SUCCESS = "bg-success"
+    DANGER = "bg-danger"
+    WARNING = "bg-warning"
+    INFO = "bg-info"
+    LIGHT = "bg-light"
+    DARK = "bg-dark"
+    WHITE = "bg-white"
+
+
+class TextColorEnum(Enum):
+    PRIMARY = "text-primary"
+    SECONDARY = "text-secondary"
+    SUCCESS = "text-success"
+    DANGER = "text-danger"
+    WARNING = "text-warning"
+    INFO = "text-info"
+    LIGHT = "text-light"
+    DARK = "text-dark"
+    MUTED = "text-muted"
+    WHITE = "text-white"
+
+
+class BorderColorEnum(Enum):
+    PRIMARY = "border-primary"
+    SECONDARY = "border-secondary"
+    SUCCESS = "border-success"
+    DANGER = "border-danger"
+    WARNING = "border-warning"
+    INFO = "border-info"
+    LIGHT = "border-light"
+    DARK = "border-dark"
+    WHITE = "border-white"
+
+
+class DataToggleEnum(Enum):
+    COLLAPSE = "collapse"
+    MODAL = "modal"
+    DROPDOWN = "dropdown"
