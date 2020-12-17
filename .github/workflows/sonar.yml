@@ -34,6 +34,10 @@ jobs:
       - name: Run Tests
         run: |
           python manage.py test
+          echo $BRANCH_NAME
+          echo ${BRANCH_NAME}
+          echo ${{ steps.extract_branch.BRANCH_NAME }}
+          
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         with:
