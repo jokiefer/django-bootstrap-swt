@@ -10,6 +10,8 @@ name: Sonar
       - reopened
   schedule:
     - cron: 0 16 * * *
+  workflow_dispatch:
+  
 jobs:
   sonarcloud:
     name: Sonar
