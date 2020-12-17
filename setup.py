@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name="django-bootstrap-swt-joki",
+    name="django-bootstrap-swt",
     version=os.getenv('RELEASE_VERSION'),
     author="Jonas Kiefer",
     author_email="jonas.kiefer@live.com",
