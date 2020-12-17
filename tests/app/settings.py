@@ -17,9 +17,9 @@ TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 NOSE_ARGS = [
     '--with-xunit',
-    '--xunit-file=tests/nosetests.xml',
+    '--xunit-file=xunit-reports/xunit-result.xml',
     '--with-coverage',
     '--cover-erase',
     '--cover-xml',
-    '--cover-xml-file=tests/nosecover.xml',
+    '--cover-xml-file=coverage-reports/coverage-report.xml',
 ]
