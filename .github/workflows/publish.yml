@@ -19,8 +19,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip3 install -r requirements.txt
-          pip3 install .
-          pip3 install django-nose==1.4.7
+          pip3 install -r test-requirements.txt
           pip3 install setuptools wheel
       - name: Run Tests
         run: |
