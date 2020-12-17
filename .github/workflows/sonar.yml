@@ -1,5 +1,6 @@
 name: Sonar
-'on':
+on:
+  workflow_dispatch:
   push:
     branches:
       - master
@@ -9,9 +10,7 @@ name: Sonar
       - synchronize
       - reopened
   schedule:
-    - cron: 0 16 * * *
-  workflow_dispatch:
-  
+    - cron: 0 16 * * *  
 jobs:
   sonarcloud:
     name: Sonar
@@ -38,7 +37,7 @@ jobs:
         uses: SonarSource/sonarcloud-github-action@master
         with:
           args: >
-            -Dsonar.branch.name=${BRANCH_NAME}
+            -Dsonar.branch.name=$BRANCH_NAME
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
           SONAR_TOKEN: '${{ secrets.SONAR_TOKEN }}'
