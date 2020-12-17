@@ -35,7 +35,7 @@ jobs:
         uses: nelonoel/branch-name@v1.0.1
         # Use branch name for whatever purpose
         env: 
-          BRANCH_NAME: '${BRANCH_NAME}'
+          BRANCH_NAME: '${{ BRANCH_NAME }}'
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         with:
