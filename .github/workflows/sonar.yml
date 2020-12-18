@@ -16,10 +16,9 @@ jobs:
     name: Sonar
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-          ref: ${{ github.ref }}
       - name: Extract branch name
         uses: nelonoel/branch-name@v1.0.1
         id: extract_branch
