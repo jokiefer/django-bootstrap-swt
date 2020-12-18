@@ -3,7 +3,7 @@ from unittest import TestCase
 from django.template.loader import render_to_string
 from django.utils.safestring import SafeString
 from django_bootstrap_swt.components import BootstrapComponent, ProgressBar, Badge, Tooltip, \
-    TooltipSouroundedComponent, Modal, Accordion, LinkButton, Link, Button, ButtonGroup, Dropdown, ListGroupItem, \
+    TooltipSurroundedComponent, Modal, Accordion, LinkButton, Link, Button, ButtonGroup, Dropdown, ListGroupItem, \
     ListGroup, CardHeader, CardFooter, CardBody, Card, Div
 from django_bootstrap_swt.enums import ProgressColorEnum, BadgeColorEnum, ButtonColorEnum, \
     ButtonSizeEnum, ModalSizeEnum, TextColorEnum, DataToggleEnum, BackgroundColorEnum, BorderColorEnum, \
@@ -15,7 +15,7 @@ MSG_SUBCLASS_DOES_NOT_INHERIT_FROM_BOOTSTRAP_COMPONENT = 'The class "{}" does no
 MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT = 'The rendered string is not correct.'
 
 BOOTSTRAP_COMPONENT_LIST = [Tooltip,
-                            TooltipSouroundedComponent,
+                            TooltipSurroundedComponent,
                             ProgressBar,
                             Badge,
                             Link,
@@ -528,7 +528,7 @@ class TestTooltip(StringDiffTestCase):
     """ This class contains all needed tests for testing Tooltip class
     """
     def test_rendering(self):
-        first = Tooltip(title='nice tooltip', sourounded_component='nice component', placement=TooltipPlacementEnum.TOP)
+        first = Tooltip(title='nice tooltip', surrounded_component='nice component', placement=TooltipPlacementEnum.TOP)
         expr = render_to_string(template_name='components/tooltip/test_tooltip.html')
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
@@ -537,6 +537,6 @@ class TestDiv(StringDiffTestCase):
     """ This class contains all needed tests for testing Tooltip class
     """
     def test_rendering(self):
-        first = Tooltip(title='nice tooltip', sourounded_component='nice component', placement=TooltipPlacementEnum.TOP)
+        first = Tooltip(title='nice tooltip', surrounded_component='nice component', placement=TooltipPlacementEnum.TOP)
         expr = render_to_string(template_name='components/tooltip/test_tooltip.html')
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
