@@ -1,6 +1,7 @@
 # django-bootstrap-swt  - An app for creating bootstrap components on python level
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=jokiefer_django-bootstrap-swt&metric=alert_status)](https://sonarcloud.io/dashboard?id=jokiefer_django-bootstrap-swt)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=jokiefer_django-bootstrap-swt&metric=coverage)](https://sonarcloud.io/dashboard?id=jokiefer_django-bootstrap-swt)
+[![Documentation Status](https://readthedocs.org/projects/django-bootstrap-swt/badge/?version=latest)](https://django-bootstrap-swt.readthedocs.io/en/latest/?badge=latest)
 
 django-bootstrap-swt simplifies the task of building HTML pages with bootstrap components by using the java swt concept. This reduces your html code duplication, cause you can use predefined bootstrap components.
 
