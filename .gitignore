@@ -128,3 +128,5 @@ dmypy.json
 .pyre/
 .idea/
 .scannerwork/
+coverage-report.xml
+xunit-result.xml

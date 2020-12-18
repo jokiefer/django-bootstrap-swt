@@ -7,14 +7,6 @@ from django_bootstrap_swt.enums import ButtonColorEnum, TooltipPlacementEnum, Pr
 PATH_TO_TEMPLATES = "django_bootstrap_swt/components/"
 
 
-class AbstractPermissionComponent(ABC):
-    """
-    This class is used adds the needs_perm attribute to a component
-    """
-    def __init__(self, needs_perm: str = None):
-        self.needs_perm = needs_perm
-
-
 class AbstractButton(ABC):
     """
     This class is used to group other Button representing components
@@ -23,9 +15,11 @@ class AbstractButton(ABC):
 
 
 class BootstrapComponent:
-    def __init__(self, path_to_templates: str = PATH_TO_TEMPLATES, template_name: str = None):
+    def __init__(self, path_to_templates: str = PATH_TO_TEMPLATES, template_name: str = None, needs_perm: str = None,
+                 *args, **kwargs):
         self.path_to_templates = path_to_templates
         self.template_name = template_name
+        self.needs_perm = needs_perm
 
     def __str__(self) -> str:
         return self.render()
@@ -59,17 +53,19 @@ class BootstrapComponent:
 
 
 class Tooltip(BootstrapComponent):
-    def __init__(self, title: str, sourounded_component: str, placement: TooltipPlacementEnum = None):
-        super().__init__(template_name="tooltip.html")
+    def __init__(self, title: str, sourounded_component: str, placement: TooltipPlacementEnum = None, *args, **kwargs):
+        super(Tooltip, self).__init__(template_name="tooltip.html", *args, **kwargs)
         self.title = title
         self.sourounded_component = sourounded_component
         self.placement = placement
 
 
 class TooltipSouroundedComponent(BootstrapComponent, ABC):
-    def __init__(self, tooltip: str = None, tooltip_placement: TooltipPlacementEnum = None, template_name: str = None):
+    def __init__(self, tooltip: str = None, tooltip_placement: TooltipPlacementEnum = None, template_name: str = None
+                 , *args, **kwargs):
         super(TooltipSouroundedComponent, self).__init__(template_name=template_name,
-                                                         path_to_templates=PATH_TO_TEMPLATES)
+                                                         path_to_templates=PATH_TO_TEMPLATES,
+                                                         *args, **kwargs)
         self.tooltip = tooltip
         self.tooltip_placement = tooltip_placement
 
@@ -83,8 +79,8 @@ class TooltipSouroundedComponent(BootstrapComponent, ABC):
 
 class ProgressBar(BootstrapComponent):
     def __init__(self, progress: int = 0, color: ProgressColorEnum = None, animated: bool = True,
-                 striped: bool = True):
-        super().__init__(template_name="progressbar.html")
+                 striped: bool = True, *args, **kwargs):
+        super(ProgressBar, self).__init__(template_name="progressbar.html", *args, **kwargs)
         self.progress = progress
         self.color = color
         self.animated = animated
@@ -93,16 +89,17 @@ class ProgressBar(BootstrapComponent):
 
 class Badge(TooltipSouroundedComponent):
     def __init__(self, value: str, color: BadgeColorEnum = BadgeColorEnum.INFO, pill: bool = False, *args, **kwargs):
-        super().__init__(template_name='badge.html', *args, **kwargs)
+        super(Badge, self).__init__(template_name='badge.html', *args, **kwargs)
         self.value = value
         self.color = color
         self.pill = pill
 
 
-class Link(TooltipSouroundedComponent, AbstractPermissionComponent):
+class Link(TooltipSouroundedComponent):
     def __init__(self, url: str, value: str, color: TextColorEnum = None, open_in_new_tab: bool = False,
                  dropdown_item: bool = False, *args, **kwargs):
-        super().__init__(template_name="link.html", *args, **kwargs)
+        super(Link, self).__init__(*args, **kwargs)
+        self.template_name = "link.html"
         self.url = url
         self.value = value
         self.color = color
@@ -110,9 +107,9 @@ class Link(TooltipSouroundedComponent, AbstractPermissionComponent):
         self.dropdown_item = dropdown_item
 
 
-class LinkButton(AbstractButton, TooltipSouroundedComponent, AbstractPermissionComponent):
+class LinkButton(AbstractButton, TooltipSouroundedComponent):
     def __init__(self, url: str, value: str, color: ButtonColorEnum, size: ButtonSizeEnum = None, *args, **kwargs):
-        super().__init__(template_name="link.html", *args, **kwargs)
+        super(LinkButton, self).__init__(template_name="link.html", *args, **kwargs)
         self.url = url
         self.value = value
         self.is_btn = True
@@ -120,12 +117,12 @@ class LinkButton(AbstractButton, TooltipSouroundedComponent, AbstractPermissionC
         self.size = size.value if size else None
 
 
-class Button(AbstractButton, TooltipSouroundedComponent, AbstractPermissionComponent):
+class Button(AbstractButton, TooltipSouroundedComponent):
     def __init__(self, value: str, color: ButtonColorEnum = None, size: ButtonSizeEnum = None,
                  data_toggle: DataToggleEnum = None,
                  data_target: str = None, aria_expanded: bool = None, aria_controls: str = None,
                  aria_haspopup: bool = None, additional_classes: [str] = None, *args, **kwargs):
-        super().__init__(template_name='button.html', *args, **kwargs)
+        super(Button, self).__init__(template_name='button.html', *args, **kwargs)
         self.value = value
         self.color = color
         self.size = size
@@ -144,11 +141,11 @@ class Button(AbstractButton, TooltipSouroundedComponent, AbstractPermissionCompo
         self.additional_classes = additional_classes
 
 
-class Modal(BootstrapComponent, AbstractPermissionComponent):
+class Modal(BootstrapComponent):
     def __init__(self, title: str, body: str, btn_value: str, btn_color: ButtonColorEnum,
                  btn_size: ButtonSizeEnum = None, footer: str = None, fade: bool = True,
-                 size: ModalSizeEnum = None, fetch_url: str = None):
-        super().__init__(template_name="modal.html")
+                 size: ModalSizeEnum = None, fetch_url: str = None, *args, **kwargs):
+        super(Modal, self).__init__(template_name="modal.html", *args, **kwargs)
         self.title = title
         self.body = body
         self.footer = footer
@@ -211,13 +208,13 @@ class Card(BootstrapComponent):
         self.text_color = text_color
 
 
-class Accordion(BootstrapComponent, AbstractPermissionComponent):
+class Accordion(BootstrapComponent):
     def __init__(self, btn_value: str, content: str = None, fetch_url: str = None,
                  header_bg_color: BackgroundColorEnum = None, body_bg_color: BackgroundColorEnum = None,
                  header_text_color: TextColorEnum = None, body_text_color: TextColorEnum = None,
                  header_border: BorderColorEnum = None, body_border: BorderColorEnum = None,
-                 header_center_content: str = None, header_right_content: str = None):
-        super().__init__(template_name='accordion.html')
+                 header_center_content: str = None, header_right_content: str = None, *args, **kwargs):
+        super(Accordion, self).__init__(template_name='accordion.html', *args, **kwargs)
         self.accordion_id = 'id_' + str(uuid.uuid4())
         self.card_body = CardBody(content=content,
                                   fetch_url=fetch_url,
@@ -246,15 +243,16 @@ class Accordion(BootstrapComponent, AbstractPermissionComponent):
 
 
 class ButtonGroup(BootstrapComponent):
-    def __init__(self, aria_label: str, buttons: [AbstractButton]):
-        super().__init__(template_name='button_group.html')
+    def __init__(self, aria_label: str, buttons: [AbstractButton], *args, **kwargs):
+        super(ButtonGroup, self).__init__(template_name='button_group.html', *args, **kwargs)
         self.aria_label = aria_label
         self.buttons = [button.render() for button in buttons]
 
 
 class Dropdown(TooltipSouroundedComponent):
-    def __init__(self, value: str, items: [Link], color: ButtonColorEnum = ButtonColorEnum.INFO, header: str = None):
-        super().__init__(template_name='dropdown.html')
+    def __init__(self, value: str, items: [Link], color: ButtonColorEnum = ButtonColorEnum.INFO, header: str = None,
+                 *args, **kwargs):
+        super(Dropdown, self).__init__(template_name='dropdown.html', *args, **kwargs)
         self.value = value
         self.color = color
         self.button = Button(value=value, color=color, additional_classes=['dropdown-toggle'],
@@ -269,27 +267,27 @@ class Dropdown(TooltipSouroundedComponent):
 
 
 class ListGroupItem(BootstrapComponent):
-    def __init__(self, content: str):
-        super().__init__(template_name='list_group_item.html')
+    def __init__(self, content: str, *args, **kwargs):
+        super(ListGroupItem, self).__init__(template_name='list_group_item.html', *args, **kwargs)
         self.content = content
 
 
 class ListGroup(BootstrapComponent):
-    def __init__(self, items: [ListGroupItem]):
-        super().__init__(template_name='list_group.html')
+    def __init__(self, items: [ListGroupItem], *args, **kwargs):
+        super(ListGroup, self).__init__(template_name='list_group.html', *args, **kwargs)
         self.items = [item.render() for item in items]
 
 
 class Div(BootstrapComponent):
-    def __init__(self, content: str, additional_classes: [str] = None):
-        super(Div, self).__init__(template_name='div.html')
+    def __init__(self, content: str, additional_classes: [str] = None, *args, **kwargs):
+        super(Div, self).__init__(template_name='div.html', *args, **kwargs)
         self.content = content
         self.additional_classes = additional_classes
 
 
 class DefaultHeaderRow(BootstrapComponent):
-    def __init__(self, content_left: str, content_right: str, content_center: str = None):
-        super(DefaultHeaderRow, self).__init__()
+    def __init__(self, content_left: str, content_right: str, content_center: str = None, *args, **kwargs):
+        super(DefaultHeaderRow, self).__init__(*args, **kwargs)
         self.content_left = content_left
         self.content_center = content_center
         self.content_right = content_right
