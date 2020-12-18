@@ -1,51 +1,51 @@
-from django.contrib.auth.models import AbstractUser
 from django.http import HttpRequest
-
 from django_bootstrap_swt.components import BootstrapComponent
-from django_bootstrap_swt.settings import CURRENT_VIEW_QUERYPARAM, CURRENT_VIEW_ARG_QUERYPARAM
 
 
-class Bootstrap4Helper:
-
-    def __init__(self, request: HttpRequest, requesting_user: AbstractUser, add_current_view_params: bool = False):
-        self.permission_lookup = {}
+class RenderHelper:
+    """
+    This class provides some functions for permission checked rendering.
+    """
+    def __init__(self, request: HttpRequest, user_permissions: [str] = None):
+        """
+        :param request: the request
+        :param user_permissions: a list which holds all user permission codenames
+        """
         self.request = request
-        self.requesting_user = requesting_user
-        self.add_current_view_params = add_current_view_params
+        self.user_permissions = user_permissions if user_permissions else []
 
-        self.url_querystring = ''
-        if add_current_view_params:
-            current_view = self.request.GET.get(CURRENT_VIEW_QUERYPARAM, self.request.resolver_match.view_name)
-            if self.request.resolver_match.kwargs:
-                # if kwargs are not empty, this is a detail view
-                if 'pk' in self.request.resolver_match.kwargs:
-                    current_view_arg = self.request.resolver_match.kwargs['pk']
-                else:
-                    current_view_arg = self.request.resolver_match.kwargs['slug']
-                current_view_arg = self.request.GET.get(CURRENT_VIEW_ARG_QUERYPARAM, current_view_arg)
-                self.url_querystring = \
-                    f'?{CURRENT_VIEW_QUERYPARAM}={current_view}&{CURRENT_VIEW_ARG_QUERYPARAM}={current_view_arg}'
-            else:
-                self.url_querystring = f'?{CURRENT_VIEW_QUERYPARAM}={current_view}'
+    def _check_render_permission(self, item: BootstrapComponent) -> bool:
+        if not item.needs_perm or self.user_permissions and item.needs_perm in self.user_permissions:
+            return True
+        else:
+            return False
 
-    def check_render_permission(self, permission: str) -> bool:
-        has_perm = self.permission_lookup.get(permission, None)
-        if has_perm is None:
-            has_perm = self.requesting_user.has_perm(permission)
-            self.permission_lookup[permission] = has_perm
-        return has_perm
+    def render_item(self, item: BootstrapComponent) -> str:
+        """
+        Use this function to render one item based on the self.user_permissions list. The item.needs_perm attribute
+        value will be checked against the self.user_permissions list. If the needs_perm attribute value is not
+        in the self.user_permissions list, the item will not be rendered.
 
-    def render_item(self, item: BootstrapComponent, ignore_current_view_params: bool = False) -> str:
+        :param item: the BoostrapComponent which will be rendered or not
+        :return: empty string if the user does not have the right permission |
+                 the rendered BootstrapComponent if the user does have the permission
+        """
         rendered_string = ''
-        has_perm = self.check_render_permission(item.needs_perm) if hasattr(item, 'needs_perm') else True
-        if has_perm:
-            if self.add_current_view_params and hasattr(item, 'url') and not ignore_current_view_params:
-                item.url += self.url_querystring
+        if self._check_render_permission(item):
             rendered_string = item.render()
         return rendered_string
 
-    def render_list_coherent(self, items: [BootstrapComponent], ignore_current_view_params: bool = False) -> str:
+    def render_list_coherent(self, items: [BootstrapComponent]) -> str:
+        """
+        Use this function to render a list of items based on the self.user_permissions list. All items which needs
+        permission will be checked against the self.user_permissions list. If the needs_perm attribute value is not
+        in the self.user_permissions list, the item will not be rendered and concatenated.
+
+        :param items: the list of BootstrapComponent which shall be rendered
+        :return: empty string if the user does not have the right permissions for any item |
+                 the concatenated string with all rendered items for that the user has permissions
+        """
         rendered_string = ''
         for item in items:
-            rendered_string += self.render_item(item=item, ignore_current_view_params=ignore_current_view_params)
+            rendered_string += self.render_item(item=item)
         return rendered_string
