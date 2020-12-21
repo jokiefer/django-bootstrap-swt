@@ -14,6 +14,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/jokiefer/django-bootstrap-swt",
+    include_package_data=True,
     packages=find_packages(exclude=['*.tests', '*.tests.*', 'tests.*', 'tests']),
     classifiers=[
         "Development Status :: 3 - Alpha",
