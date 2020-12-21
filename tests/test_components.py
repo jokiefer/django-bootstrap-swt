@@ -4,7 +4,7 @@ from django.template.loader import render_to_string
 from django.utils.safestring import SafeString
 from django_bootstrap_swt.components import BootstrapComponent, ProgressBar, Badge, Tooltip, \
     TooltipSurroundedComponent, Modal, Accordion, LinkButton, Link, Button, ButtonGroup, Dropdown, ListGroupItem, \
-    ListGroup, CardHeader, CardFooter, CardBody, Card, Div
+    ListGroup, CardHeader, CardFooter, CardBody, Card, Tag
 from django_bootstrap_swt.enums import ProgressColorEnum, BadgeColorEnum, ButtonColorEnum, \
     ButtonSizeEnum, ModalSizeEnum, TextColorEnum, DataToggleEnum, BackgroundColorEnum, BorderColorEnum, \
     TooltipPlacementEnum
@@ -32,7 +32,7 @@ BOOTSTRAP_COMPONENT_LIST = [Tooltip,
                             CardFooter,
                             CardHeader,
                             Tooltip,
-                            Div]
+                            Tag]
 
 
 class StringDiffTestCase(TestCase):
@@ -533,10 +533,10 @@ class TestTooltip(StringDiffTestCase):
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
 
-class TestDiv(StringDiffTestCase):
+class TestTag(StringDiffTestCase):
     """ This class contains all needed tests for testing Tooltip class
     """
     def test_rendering(self):
-        first = Tooltip(title='nice tooltip', surrounded_component='nice component', placement=TooltipPlacementEnum.TOP)
-        expr = render_to_string(template_name='components/tooltip/test_tooltip.html')
+        first = Tag(tag='i', additional_classes=['fab', 'fa-accessible-icon'])
+        expr = render_to_string(template_name='components/tag/test_tag.html')
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)

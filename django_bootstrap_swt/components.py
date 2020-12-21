@@ -514,18 +514,20 @@ class ListGroup(BootstrapComponent):
         self.items = [item.render() for item in items]
 
 
-class Div(BootstrapComponent):
+class Tag(TooltipSurroundedComponent):
     """
     This is a helper class for generic div rendering
     """
-    def __init__(self, content: str, additional_classes: [str] = None, *args, **kwargs):
+    def __init__(self, tag: str, content: str = None, additional_classes: [str] = None, *args, **kwargs):
         """
+        :param tag: the tag name
         :param content: the content of this div
         :param additional_classes: Optional: appends strings to the class html tag
         :param args:
         :param kwargs:
         """
-        super(Div, self).__init__(template_name='div.html', *args, **kwargs)
+        super(Tag, self).__init__(template_name='tag.html', *args, **kwargs)
+        self.tag = tag
         self.content = content
         self.additional_classes = additional_classes
 
@@ -548,14 +550,14 @@ class DefaultHeaderRow(BootstrapComponent):
         self.content_right = content_right
 
     def render(self, safe: bool = False) -> str:
-        col_left = Div(content=self.content_left, additional_classes=['col-sm', 'text-left'])
+        col_left = Tag(tag='div', content=self.content_left, additional_classes=['col-sm', 'text-left'])
         if self.content_center:
-            col_center = Div(content=self.content_center, additional_classes=['col-sm', 'text-center'])
+            col_center = Tag(tag='div', content=self.content_center, additional_classes=['col-sm', 'text-center'])
         else:
             col_center = ''
         if self.content_right:
-            col_right = Div(content=self.content_right, additional_classes=['col-sm', 'text-right'])
+            col_right = Tag(tag='div', content=self.content_right, additional_classes=['col-sm', 'text-right'])
         else:
             col_right = ''
         content = col_left + col_center + col_right
-        return Div(content=content, additional_classes=['row']).render(safe=safe)
+        return Tag(tag='div', content=content, additional_classes=['row']).render(safe=safe)
