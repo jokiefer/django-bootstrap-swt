@@ -1,6 +1,4 @@
 from unittest import TestCase
-from django.test import RequestFactory
-
 from django_bootstrap_swt.components import Link, Badge
 from django_bootstrap_swt.utils import RenderHelper
 
@@ -9,19 +7,23 @@ class TestRenderHelper(TestCase):
     """ This class contains all needed tests for testing TestRenderHelper class
     """
 
-    def setUp(self) -> None:
-        self.factory = RequestFactory()
-
     def test_init_with_user_permissions_arg(self):
         user_perms = ['test_perm_1', 'test_perm_2']
         render_helper = RenderHelper(user_permissions=['test_perm_1', 'test_perm_2'])
 
         self.assertEqual(first=user_perms, second=render_helper.user_permissions)
 
-    def test_init_without_user_permissions_arg(self):
+    def test_init_with_update_url_qs_arg(self):
+        update_url_qs = {'key': 'value', 'key2': 'value2'}
+        render_helper = RenderHelper(update_url_qs=update_url_qs)
+
+        self.assertEqual(first=update_url_qs, second=render_helper.update_url_qs)
+
+    def test_init_without_args(self):
         render_helper = RenderHelper()
 
         self.assertEqual(first=[], second=render_helper.user_permissions)
+        self.assertEqual(first=None, second=render_helper.update_url_qs)
 
     def test__check_render_permission_user_perm_empty_not_needs_perm(self):
         render_helper = RenderHelper()
@@ -69,3 +71,33 @@ class TestRenderHelper(TestCase):
         rendered_list = render_helper.render_list_coherent(items=items)
         expr = Badge(value='').render()
         self.assertEqual(first=rendered_list, second=expr)
+
+    def test_render_item_with_update_url_qs_url_has_key(self):
+        url_before_update = 'http://example.com?key=xxx'
+        url_after_update = 'http://example.com?key=value'
+        test_link_rendered = Link(value='1234', url=url_after_update).render()
+
+        render_helper = RenderHelper(update_url_qs={'key': 'value'})
+        rendered_item = render_helper.render_item(item=Link(value='1234', url=url_before_update))
+
+        self.assertEqual(first=rendered_item, second=test_link_rendered)
+
+    def test_render_item_with_update_url_qs_url_has_no_key(self):
+        url_before_update = 'http://example.com'
+        url_after_update = 'http://example.com?key=value'
+        test_link_rendered = Link(value='1234', url=url_after_update).render()
+
+        render_helper = RenderHelper(update_url_qs={'key': 'value'})
+        rendered_item = render_helper.render_item(item=Link(value='1234', url=url_before_update))
+
+        self.assertEqual(first=rendered_item, second=test_link_rendered)
+
+    def test_render_item_with_update_url_qs_url_has_other_keys(self):
+        url_before_update = 'http://example.com?key2=value123'
+        url_after_update = 'http://example.com?key2=value123&key=value'
+        test_link_rendered = Link(value='1234', url=url_after_update).render()
+
+        render_helper = RenderHelper(update_url_qs={'key': 'value'})
+        rendered_item = render_helper.render_item(item=Link(value='1234', url=url_before_update))
+
+        self.assertEqual(first=rendered_item, second=test_link_rendered)

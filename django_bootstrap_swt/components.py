@@ -91,8 +91,8 @@ class TooltipSurroundedComponent(BootstrapComponent, ABC):
     """
     This is the helper class to surround a BootstrapComponent with a Tooltip.
     """
-    def __init__(self, tooltip: str = None, tooltip_placement: TooltipPlacementEnum = None, template_name: str = None
-                 , *args, **kwargs):
+    def __init__(self, tooltip: str = None, tooltip_placement: TooltipPlacementEnum = None, template_name: str = None,
+                 *args, **kwargs):
         """
         :param tooltip: Optional the title of the tooltip which is also the content of the tooltip
         :param tooltip_placement: Optional: placement of the tooltip relative to the surrounded_component
@@ -232,13 +232,13 @@ class Button(AbstractButton, TooltipSurroundedComponent):
         self.size = size
         self.data_toggle = data_toggle
         self.data_target = data_target
-        if aria_expanded == True:
+        if aria_expanded is True:
             self.aria_expanded = 'true'
-        elif aria_expanded == False:
+        elif aria_expanded is False:
             self.aria_expanded = 'false'
-        if aria_haspopup == True:
+        if aria_haspopup is True:
             self.aria_haspopup = 'true'
-        elif aria_haspopup == False:
+        elif aria_haspopup is False:
             self.aria_haspopup = 'false'
         self.aria_controls = aria_controls
         self.button_id = 'id_' + str(uuid.uuid4())
@@ -559,4 +559,3 @@ class DefaultHeaderRow(BootstrapComponent):
             col_right = ''
         content = col_left + col_center + col_right
         return Div(content=content, additional_classes=['row']).render(safe=safe)
-
