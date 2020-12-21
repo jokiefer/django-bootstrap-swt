@@ -91,8 +91,8 @@ class TooltipSurroundedComponent(BootstrapComponent, ABC):
     """
     This is the helper class to surround a BootstrapComponent with a Tooltip.
     """
-    def __init__(self, tooltip: str = None, tooltip_placement: TooltipPlacementEnum = None, template_name: str = None
-                 , *args, **kwargs):
+    def __init__(self, tooltip: str = None, tooltip_placement: TooltipPlacementEnum = None, template_name: str = None,
+                 *args, **kwargs):
         """
         :param tooltip: Optional the title of the tooltip which is also the content of the tooltip
         :param tooltip_placement: Optional: placement of the tooltip relative to the surrounded_component
@@ -232,13 +232,13 @@ class Button(AbstractButton, TooltipSurroundedComponent):
         self.size = size
         self.data_toggle = data_toggle
         self.data_target = data_target
-        if aria_expanded == True:
+        if aria_expanded is True:
             self.aria_expanded = 'true'
-        elif aria_expanded == False:
+        elif aria_expanded is False:
             self.aria_expanded = 'false'
-        if aria_haspopup == True:
+        if aria_haspopup is True:
             self.aria_haspopup = 'true'
-        elif aria_haspopup == False:
+        elif aria_haspopup is False:
             self.aria_haspopup = 'false'
         self.aria_controls = aria_controls
         self.button_id = 'id_' + str(uuid.uuid4())
@@ -514,18 +514,20 @@ class ListGroup(BootstrapComponent):
         self.items = [item.render() for item in items]
 
 
-class Div(BootstrapComponent):
+class Tag(TooltipSurroundedComponent):
     """
     This is a helper class for generic div rendering
     """
-    def __init__(self, content: str, additional_classes: [str] = None, *args, **kwargs):
+    def __init__(self, tag: str, content: str = None, additional_classes: [str] = None, *args, **kwargs):
         """
+        :param tag: the tag name
         :param content: the content of this div
         :param additional_classes: Optional: appends strings to the class html tag
         :param args:
         :param kwargs:
         """
-        super(Div, self).__init__(template_name='div.html', *args, **kwargs)
+        super(Tag, self).__init__(template_name='tag.html', *args, **kwargs)
+        self.tag = tag
         self.content = content
         self.additional_classes = additional_classes
 
@@ -548,15 +550,14 @@ class DefaultHeaderRow(BootstrapComponent):
         self.content_right = content_right
 
     def render(self, safe: bool = False) -> str:
-        col_left = Div(content=self.content_left, additional_classes=['col-sm', 'text-left'])
+        col_left = Tag(tag='div', content=self.content_left, additional_classes=['col-sm', 'text-left'])
         if self.content_center:
-            col_center = Div(content=self.content_center, additional_classes=['col-sm', 'text-center'])
+            col_center = Tag(tag='div', content=self.content_center, additional_classes=['col-sm', 'text-center'])
         else:
             col_center = ''
         if self.content_right:
-            col_right = Div(content=self.content_right, additional_classes=['col-sm', 'text-right'])
+            col_right = Tag(tag='div', content=self.content_right, additional_classes=['col-sm', 'text-right'])
         else:
             col_right = ''
         content = col_left + col_center + col_right
-        return Div(content=content, additional_classes=['row']).render(safe=safe)
-
+        return Tag(tag='div', content=content, additional_classes=['row']).render(safe=safe)
