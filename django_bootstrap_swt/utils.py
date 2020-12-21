@@ -6,12 +6,10 @@ class RenderHelper:
     """
     This class provides some functions for permission checked rendering.
     """
-    def __init__(self, request: HttpRequest, user_permissions: [str] = None):
+    def __init__(self, user_permissions: [str] = None):
         """
-        :param request: the request
         :param user_permissions: a list which holds all user permission codenames
         """
-        self.request = request
         self.user_permissions = user_permissions if user_permissions else []
 
     def _check_render_permission(self, item: BootstrapComponent) -> bool:
