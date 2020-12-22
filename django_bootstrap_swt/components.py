@@ -1,5 +1,7 @@
 import uuid
 from abc import ABC
+from collections import OrderedDict
+
 from django.template.loader import render_to_string
 from django_bootstrap_swt.enums import ButtonColorEnum, TooltipPlacementEnum, ProgressColorEnum, BadgeColorEnum, \
     ButtonSizeEnum, ModalSizeEnum, TextColorEnum, BackgroundColorEnum, BorderColorEnum, DataToggleEnum
@@ -550,14 +552,22 @@ class DefaultHeaderRow(BootstrapComponent):
         self.content_right = content_right
 
     def render(self, safe: bool = False) -> str:
-        col_left = Tag(tag='div', content=self.content_left, additional_classes=['col-sm', 'text-left'])
+        col_left = Tag(tag='div',
+                       content=self.content_left,
+                       attrs={"class": ['col-sm', 'text-left']})
         if self.content_center:
-            col_center = Tag(tag='div', content=self.content_center, additional_classes=['col-sm', 'text-center'])
+            col_center = Tag(tag='div',
+                             content=self.content_center,
+                             attrs={"class": ['col-sm', 'text-center']})
         else:
             col_center = ''
         if self.content_right:
-            col_right = Tag(tag='div', content=self.content_right, additional_classes=['col-sm', 'text-right'])
+            col_right = Tag(tag='div',
+                            content=self.content_right,
+                            attrs={"class": ['col-sm', 'text-right']})
         else:
             col_right = ''
         content = col_left + col_center + col_right
-        return Tag(tag='div', content=content, additional_classes=['row']).render(safe=safe)
+        return Tag(tag='div',
+                   content=content,
+                   attrs={"class": ['row']}).render(safe=safe)
