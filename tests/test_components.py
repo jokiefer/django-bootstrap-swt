@@ -131,12 +131,12 @@ class TestBadge(StringDiffTestCase):
     """
 
     def test_rendering_with_color_argument(self):
-        badge = Badge(value='1234', color=BadgeColorEnum.PRIMARY).render(safe=True)
+        badge = Badge(content='1234', color=BadgeColorEnum.PRIMARY).render(safe=True)
         expr = render_to_string(template_name='components/badge/test_badge_color_primary.html', context={})
         self.assertMultiLineEqual(first=badge, second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
     def test_rendering_with_pill_argument(self):
-        badge = Badge(value='1234', pill=True).render(safe=True)
+        badge = Badge(content='1234', pill=True).render(safe=True)
         expr = render_to_string(template_name='components/badge/test_badge_pill_true.html', context={})
         self.assertMultiLineEqual(first=badge, second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
@@ -146,19 +146,19 @@ class TestLink(StringDiffTestCase):
     """
 
     def test_rendering_with_color_argument(self):
-        first = Link(url='http://example.com', value='http://example.com', color=TextColorEnum.SUCCESS, ).render(
+        first = Link(url='http://example.com', content='http://example.com', color=TextColorEnum.SUCCESS, ).render(
             safe=True)
         expr = render_to_string(template_name='components/link/test_link_color_success.html', context={})
         self.assertMultiLineEqual(first=first, second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
     def test_rendering_with_dropdown_item_argument(self):
-        first = Link(url='http://example.com', value='http://example.com', dropdown_item=True, ).render(
+        first = Link(url='http://example.com', content='http://example.com', dropdown_item=True, ).render(
             safe=True)
         expr = render_to_string(template_name='components/link/test_link_dropdown_item_true.html', context={})
         self.assertMultiLineEqual(first=first, second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
     def test_rendering_with_open_in_new_tab_argument(self):
-        first = Link(url='http://example.com', value='http://example.com', open_in_new_tab=True, ).render(
+        first = Link(url='http://example.com', content='http://example.com', open_in_new_tab=True, ).render(
             safe=True)
         expr = render_to_string(template_name='components/link/test_link_open_in_new_tab_true.html', context={})
         self.assertMultiLineEqual(first=first, second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
@@ -169,7 +169,7 @@ class TestLinkButton(StringDiffTestCase):
     """
 
     def test_rendering_with_color_argument(self):
-        first = LinkButton(url='http://example.com', value='http://example.com', color=ButtonColorEnum.SUCCESS,
+        first = LinkButton(url='http://example.com', content='http://example.com', color=ButtonColorEnum.SUCCESS,
                            size=ButtonSizeEnum.SMALL).render(safe=True)
         expr = render_to_string(template_name='components/linkbutton/test_linkbutton_size_small.html', context={})
         self.assertMultiLineEqual(first=first, second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
@@ -180,31 +180,31 @@ class TestButton(StringDiffTestCase):
     """
 
     def test_rendering_with_color_argument(self):
-        first = Button(value='nice button', color=ButtonColorEnum.SUCCESS, size=ButtonSizeEnum.SMALL)
+        first = Button(content='nice button', color=ButtonColorEnum.SUCCESS, size=ButtonSizeEnum.SMALL)
         expr = render_to_string(template_name='components/button/test_button_size_small.html',
                                 context={"button_id": first.button_id})
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
     def test_rendering_with_data_toggle_argument(self):
-        first = Button(value='nice button', color=ButtonColorEnum.SUCCESS, data_toggle=DataToggleEnum.MODAL)
+        first = Button(content='nice button', color=ButtonColorEnum.SUCCESS, data_toggle=DataToggleEnum.MODAL)
         expr = render_to_string(template_name='components/button/test_button_data_toggle_modal.html',
                                 context={"button_id": first.button_id})
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
     def test_rendering_with_data_target_argument(self):
-        first = Button(value='nice button', color=ButtonColorEnum.SUCCESS, data_target='modal')
+        first = Button(content='nice button', color=ButtonColorEnum.SUCCESS, data_target='modal')
         expr = render_to_string(template_name='components/button/test_button_data_target_modal.html',
                                 context={"button_id": first.button_id})
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
     def test_rendering_with_area_expand_argument(self):
-        first = Button(value='nice button', color=ButtonColorEnum.SUCCESS, aria_expanded=True)
+        first = Button(content='nice button', color=ButtonColorEnum.SUCCESS, aria_expanded=True)
         expr = render_to_string(template_name='components/button/test_button_aria_expanded_true.html',
                                 context={"button_id": first.button_id})
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
     def test_rendering_with_area_controls_argument(self):
-        first = Button(value='nice button', color=ButtonColorEnum.SUCCESS, aria_controls='modal')
+        first = Button(content='nice button', color=ButtonColorEnum.SUCCESS, aria_controls='modal')
         expr = render_to_string(template_name='components/button/test_button_aria_controls_modal.html',
                                 context={"button_id": first.button_id})
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
@@ -343,12 +343,6 @@ class TestCardBody(StringDiffTestCase):
                                 context={"body_id": first.body_id})
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
-    def test_rendering_with_additional_classes(self):
-        first = CardBody(content='nice body', additional_classes=['collapse', ])
-        expr = render_to_string(template_name='components/card/body/test_card_body_additional_classes.html',
-                                context={"body_id": first.body_id})
-        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
-
 
 class TestCard(StringDiffTestCase):
     """ This class contains all needed tests for testing Card class
@@ -479,8 +473,8 @@ class TestButtonGroup(StringDiffTestCase):
     """ This class contains all needed tests for testing ButtonGroup class
     """
     def test_rendering(self):
-        button = Button(value='nice button')
-        link_button = LinkButton(url='http://example.com', value='nice linkbutton', color=ButtonColorEnum.SUCCESS)
+        button = Button(content='nice button')
+        link_button = LinkButton(url='http://example.com', content='nice linkbutton', color=ButtonColorEnum.SUCCESS)
         first = ButtonGroup(aria_label='nice_buttons', buttons=[button, link_button])
         expr = render_to_string(template_name='components/buttongroup/test_button_group.html',
                                 context={"button_id": button.button_id})
@@ -491,15 +485,15 @@ class TestDropdown(StringDiffTestCase):
     """ This class contains all needed tests for testing Dropdown class
     """
     def test_rendering_with_color_argument(self):
-        link = Link(url='http://example.com', value='nice link')
-        first = Dropdown(value='nice dropdown', items=[link, ], color=ButtonColorEnum.SUCCESS)
+        link = Link(url='http://example.com', content='nice link')
+        first = Dropdown(btn_value='nice dropdown', items=[link, ], color=ButtonColorEnum.SUCCESS)
         expr = render_to_string(template_name='components/dropdown/test_dropdown_color_success.html',
                                 context={"dropdown_id": first.dropdown_id})
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
     def test_rendering_with_header_argument(self):
-        link = Link(url='http://example.com', value='nice link')
-        first = Dropdown(value='nice dropdown', items=[link, ], header='nice header')
+        link = Link(url='http://example.com', content='nice link')
+        first = Dropdown(btn_value='nice dropdown', items=[link, ], header='nice header')
         expr = render_to_string(template_name='components/dropdown/test_dropdown_header.html',
                                 context={"dropdown_id": first.dropdown_id})
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
@@ -536,6 +530,27 @@ class TestTooltip(StringDiffTestCase):
 class TestTag(StringDiffTestCase):
     """ This class contains all needed tests for testing Tooltip class
     """
+    def test_update_attribute_extend_without_duplicates(self):
+        tag = Tag(tag='div', attrs={'class': ['class-1', 'class-2']})
+        tag.update_attribute('class', ['class-3'])
+        self.assertEqual(tag.attrs['class'], ['class-1', 'class-2', 'class-3'])
+
+    def test_update_attribute_extend_with_duplicates(self):
+        tag = Tag(tag='div', attrs={'class': ['class-1', 'class-2']})
+        tag.update_attribute('class', ['class-3', 'class-2'])
+        self.assertEqual(tag.attrs['class'], ['class-1', 'class-2', 'class-3'])
+
+    def test_update_attribute_extend_with_new_attribute(self):
+        tag = Tag(tag='div', attrs={'class': ['class-1', 'class-2']})
+        tag.update_attribute('new_attr', ['value-1'])
+        self.assertEqual(tag.attrs['new_attr'], ['value-1'])
+
+    def test_update_attributes(self):
+        tag = Tag(tag='div', attrs={'class': ['class-1', 'class-2']})
+        tag.update_attributes({'new_attr': ['value-1']})
+        self.assertEqual(tag.attrs, {'class': ['class-1', 'class-2'],
+                                     'new_attr': ['value-1']})
+
     def test_rendering_of_icon(self):
         first = Tag(tag='i', attrs={'class': ['fab', 'fa-accessible-icon']})
         expr = render_to_string(template_name='components/tag/test_tag_icon.html')
