@@ -518,18 +518,18 @@ class Tag(TooltipSurroundedComponent):
     """
     This is a helper class for generic div rendering
     """
-    def __init__(self, tag: str, content: str = None, additional_classes: [str] = None, *args, **kwargs):
+    def __init__(self, tag: str, content: str = None, attrs: {} = None, *args, **kwargs):
         """
         :param tag: the tag name
         :param content: the content of this div
-        :param additional_classes: Optional: appends strings to the class html tag
+        :param attrs: Optional: a dict with with key value pairs which describes the attribute and his values
         :param args:
         :param kwargs:
         """
         super(Tag, self).__init__(template_name='tag.html', *args, **kwargs)
         self.tag = tag
         self.content = content
-        self.additional_classes = additional_classes
+        self.attrs = attrs if attrs else {}
 
 
 class DefaultHeaderRow(BootstrapComponent):

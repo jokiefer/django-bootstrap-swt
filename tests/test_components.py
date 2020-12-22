@@ -536,7 +536,12 @@ class TestTooltip(StringDiffTestCase):
 class TestTag(StringDiffTestCase):
     """ This class contains all needed tests for testing Tooltip class
     """
-    def test_rendering(self):
-        first = Tag(tag='i', additional_classes=['fab', 'fa-accessible-icon'])
-        expr = render_to_string(template_name='components/tag/test_tag.html')
+    def test_rendering_of_icon(self):
+        first = Tag(tag='i', attrs={'class': {'fab', 'fa-accessible-icon'}})
+        expr = render_to_string(template_name='components/tag/test_tag_icon.html')
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_of_disabled_icon(self):
+        first = Tag(tag='i', attrs={'class': {'fab', 'fa-accessible-icon'}, 'disabled': {}})
+        expr = render_to_string(template_name='components/tag/test_tag_icon_disabled.html')
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
