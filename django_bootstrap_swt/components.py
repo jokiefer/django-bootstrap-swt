@@ -1,7 +1,5 @@
 import uuid
 from abc import ABC
-from collections import OrderedDict
-
 from django.template.loader import render_to_string
 from django_bootstrap_swt.enums import ButtonColorEnum, TooltipPlacementEnum, ProgressColorEnum, BadgeColorEnum, \
     ButtonSizeEnum, ModalSizeEnum, TextColorEnum, BackgroundColorEnum, BorderColorEnum, DataToggleEnum
@@ -70,7 +68,25 @@ class BootstrapComponent:
         return byte_safe_string.decode(encoding='utf-8')
 
 
-class Tooltip(BootstrapComponent):
+class Tag(BootstrapComponent):
+    """
+    This is a helper class for generic div rendering
+    """
+    def __init__(self, tag: str, content: str = None, attrs: {} = None, *args, **kwargs):
+        """
+        :param tag: the tag name
+        :param content: the content of this div
+        :param attrs: Optional: a dict with with key value pairs which describes the attribute and his values
+        :param args:
+        :param kwargs:
+        """
+        super(Tag, self).__init__(template_name='tag.html', *args, **kwargs)
+        self.tag = tag
+        self.content = content
+        self.attrs = attrs if attrs else {}
+
+
+class Tooltip(Tag):
     """
     This class renders the Bootstrap Tooltip component.
     https://getbootstrap.com/docs/4.0/components/tooltips/
@@ -83,10 +99,15 @@ class Tooltip(BootstrapComponent):
         :param args:
         :param kwargs:
         """
-        super(Tooltip, self).__init__(template_name="tooltip.html", *args, **kwargs)
-        self.title = title
-        self.surrounded_component = surrounded_component
-        self.placement = placement
+        tag = "span"
+        attrs = {"class": ["d-inline-block"],
+                 "tabindex": [0],
+                 "data-html": ["true"],
+                 "data-toggle": [DataToggleEnum.TOOLTIP.value],
+                 "title": [title]}
+        if placement:
+            attrs.update({"data-placement": [placement.value]})
+        super(Tooltip, self).__init__(tag=tag, attrs=attrs, content=surrounded_component, *args, **kwargs)
 
 
 class TooltipSurroundedComponent(BootstrapComponent, ABC):
@@ -514,24 +535,6 @@ class ListGroup(BootstrapComponent):
         """
         super(ListGroup, self).__init__(template_name='list_group.html', *args, **kwargs)
         self.items = [item.render() for item in items]
-
-
-class Tag(TooltipSurroundedComponent):
-    """
-    This is a helper class for generic div rendering
-    """
-    def __init__(self, tag: str, content: str = None, attrs: {} = None, *args, **kwargs):
-        """
-        :param tag: the tag name
-        :param content: the content of this div
-        :param attrs: Optional: a dict with with key value pairs which describes the attribute and his values
-        :param args:
-        :param kwargs:
-        """
-        super(Tag, self).__init__(template_name='tag.html', *args, **kwargs)
-        self.tag = tag
-        self.content = content
-        self.attrs = attrs if attrs else {}
 
 
 class DefaultHeaderRow(BootstrapComponent):

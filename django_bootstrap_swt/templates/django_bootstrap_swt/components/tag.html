@@ -1,1 +1,1 @@
-<{{tag}}{% for attr, values in attrs.items %} {{ attr }}{% if values %}="{% for value in values%}{{value}} {% endfor %}"{% endif %}{% endfor %}>{% if content %}{{content|safe}}{% endif %}</{{tag}}>
+<{{tag}}{% for attr, values in attrs.items %} {{ attr }}{% if values %}="{% for value in values%}{{value}}{% if not forloop.last %} {% endif %}{% endfor %}"{% endif %}{% endfor %}>{% if content %}{{content|safe}}{% endif %}</{{tag}}>

@@ -94,3 +94,4 @@ class DataToggleEnum(Enum):
     COLLAPSE = "collapse"
     MODAL = "modal"
     DROPDOWN = "dropdown"
+    TOOLTIP = "tooltip"
