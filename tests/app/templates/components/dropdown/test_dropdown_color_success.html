@@ -1,13 +1,9 @@
 <div class="dropdown">
-  <button id="{{dropdown_id}}" class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown" data-target="#{{ dropdown_id}}" aria-expanded="false" aria-haspopup="true">
-    nice dropdown
-</button>
+  <button id="{{dropdown_id}}" type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false" aria-haspopup="true" data-target="#{{ dropdown_id}}">nice dropdown</button>
   <div class="dropdown-menu" aria-labelledby="{{ dropdown_id }}">
     {% if True %}{% endif %}
     {% if True %}{% endif %}
-      <a class="dropdown-item " href="http://example.com">
-    nice link
-</a>
+      <a href="http://example.com" class="dropdown-item">nice link</a>
     {% if True %}{% endif %}
   </div>
 </div>

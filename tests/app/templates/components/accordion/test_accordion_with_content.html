@@ -1,14 +1,1 @@
-<div class="accordion" id="{{accordion_id}}" >
-    <div class="card">
-    <div id="{{card_header_id}}" class="card-header">
-    <div class="row "><div class="col-sm text-left "><button id="{{button_id}}" class="btn collapsed accordion text-left" type="button" data-toggle="collapse" data-target="#{{card_body_id}}" aria-expanded="false" aria-controls="{{card_body_id}}">
-    <i class="fa" aria-hidden="true"></i> nice button
-</button></div></div>
-</div>
-    <div id="{{card_body_id}}" class="card-body collapse" data-parent="#{{accordion_id}}" aria-labelledby="{{card_header_id}}">
-    nice body
-</div>
-    {% if True %}{% endif %}
-</div>
-
-</div>
+<div id="{{accordion_id}}" class="accordion"><div class="card"><div id="{{card_header_id}}" class="card-header"><div class="row"><div class="col-sm text-left"><button id="{{button_id}}" type="button" class="btn collapsed accordion text-left" data-toggle="collapse" data-target="#{{card_body_id}}" aria-expanded="false" aria-controls="{{card_body_id}}"><i class="fa" aria-hidden="true"></i> nice button</button></div></div></div><div id="{{card_body_id}}" class="card-body collapse" data-parent="#{{accordion_id}}" aria-labelledby="{{card_header_id}}">nice body</div></div></div>

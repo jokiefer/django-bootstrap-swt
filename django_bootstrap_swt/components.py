@@ -68,7 +68,47 @@ class BootstrapComponent:
         return byte_safe_string.decode(encoding='utf-8')
 
 
-class Tooltip(BootstrapComponent):
+class Tag(BootstrapComponent):
+    """
+    This is a helper class for generic div rendering
+    """
+    def __init__(self, tag: str = None, content: str = None, attrs: {} = None, template_name: str = 'tag.html',
+                 *args, **kwargs):
+        """
+        :param tag: the tag name
+        :param content: the content of this div
+        :param attrs: Optional: a dict with with key value pairs which describes the attribute and his values
+        :param args:
+        :param kwargs:
+        """
+        super(Tag, self).__init__(template_name=template_name, *args, **kwargs)
+        self.tag = tag
+        self.content = content
+        self.attrs = attrs if attrs else {}
+
+    def update_attribute(self, attribute: str, values: list):
+        """
+        Updates the self.attrs[attribute] key with new values
+        :param attribute: the lookup key for self.attrs
+        :param values: the list of new values
+        :return:
+        """
+        if attribute in self.attrs:
+            self.attrs[attribute].extend(value for value in values if value not in self.attrs[attribute])
+        else:
+            self.attrs.update({attribute: values})
+
+    def update_attributes(self, update_attrs: dict):
+        """
+        Updates the self.attrs attribute with the update_attrs dict
+        :param update_attrs: the dict with the update key value pairs. Value shall be a list
+        :return: None
+        """
+        for attribute, values in update_attrs.items():
+            self.update_attribute(attribute, values)
+
+
+class Tooltip(Tag):
     """
     This class renders the Bootstrap Tooltip component.
     https://getbootstrap.com/docs/4.0/components/tooltips/
@@ -81,17 +121,21 @@ class Tooltip(BootstrapComponent):
         :param args:
         :param kwargs:
         """
-        super(Tooltip, self).__init__(template_name="tooltip.html", *args, **kwargs)
-        self.title = title
-        self.surrounded_component = surrounded_component
-        self.placement = placement
+        attrs = {"class": ["d-inline-block"],
+                 "tabindex": [0],
+                 "data-html": ["true"],
+                 "data-toggle": [DataToggleEnum.TOOLTIP.value],
+                 "title": [title]}
+        if placement:
+            attrs.update({"data-placement": [placement.value]})
+        super(Tooltip, self).__init__(tag="span", attrs=attrs, content=surrounded_component, *args, **kwargs)
 
 
-class TooltipSurroundedComponent(BootstrapComponent, ABC):
+class TooltipSurroundedComponent(Tag, ABC):
     """
     This is the helper class to surround a BootstrapComponent with a Tooltip.
     """
-    def __init__(self, tooltip: str = None, tooltip_placement: TooltipPlacementEnum = None, template_name: str = None,
+    def __init__(self, tooltip: str = None, tooltip_placement: TooltipPlacementEnum = None,
                  *args, **kwargs):
         """
         :param tooltip: Optional the title of the tooltip which is also the content of the tooltip
@@ -100,11 +144,9 @@ class TooltipSurroundedComponent(BootstrapComponent, ABC):
         :param args:
         :param kwargs:
         """
-        super(TooltipSurroundedComponent, self).__init__(template_name=template_name,
-                                                         path_to_templates=PATH_TO_TEMPLATES,
-                                                         *args, **kwargs)
         self.tooltip = tooltip
         self.tooltip_placement = tooltip_placement
+        super(TooltipSurroundedComponent, self).__init__(*args, **kwargs)
 
     def render(self, safe: bool = False) -> str:
         self_rendered = super(TooltipSurroundedComponent, self).render(safe=safe)
@@ -114,26 +156,39 @@ class TooltipSurroundedComponent(BootstrapComponent, ABC):
         return self_rendered
 
 
-class ProgressBar(BootstrapComponent):
+class ProgressBar(Tag):
     """
     This class renders the Bootstrap Progress component.
     https://getbootstrap.com/docs/4.0/components/progress
     """
-    def __init__(self, progress: int = 0, color: ProgressColorEnum = None, animated: bool = True,
-                 striped: bool = True, *args, **kwargs):
+    def __init__(self, progress: int = 0, color: ProgressColorEnum = None, striped: bool = True, animated: bool = True,
+                 *args, **kwargs):
         """
         :param progress: the progress value from 0 - 100 percentage
         :param color: Optional: the color of the Progressbar. Default color is primary blue.
-        :param animated: Optional: toggles the animation flag of the progressbar
         :param striped: Optional: toggles the striped flag for striped css
+        :param animated: Optional: toggles the animation flag of the progressbar
         :param args:
         :param kwargs:
         """
-        super(ProgressBar, self).__init__(template_name="progressbar.html", *args, **kwargs)
-        self.progress = progress
-        self.color = color
-        self.animated = animated
-        self.striped = striped
+        tag = "div"
+        attrs = {"class": ["progress"]}
+
+        self.attrs = {"class": ["progress-bar", ],
+                      "role": ["progressbar"],
+                      "aria-valuenow": [progress],
+                      "aria-valuemin": [0],
+                      "aria-valuemax": [100],
+                      "style": [f"width: { progress }%"]}
+        if color:
+            self.update_attribute("class", [color.value])
+        if striped:
+            self.update_attribute("class", ["progress-bar-striped"])
+        if animated:
+            self.update_attribute("class", ["progress-bar-animated"])
+
+        bar = Tag(tag=tag, attrs=self.attrs, content=f"{progress}%").render()
+        super(ProgressBar, self).__init__(tag=tag, attrs=attrs, content=bar, *args, **kwargs)
 
 
 class Badge(TooltipSurroundedComponent):
@@ -141,42 +196,47 @@ class Badge(TooltipSurroundedComponent):
     This class renders the Bootstrap Badge component.
     https://getbootstrap.com/docs/4.0/components/badge/
     """
-    def __init__(self, value: str, color: BadgeColorEnum = BadgeColorEnum.INFO, pill: bool = False, *args, **kwargs):
+    def __init__(self, content: str, pill: bool = False, color: BadgeColorEnum = BadgeColorEnum.INFO, *args, **kwargs):
         """
-        :param value: the value of the badge
-        :param color: the color of the badge. Default is bootstrap info color.
+        :param content: the content of the badge
         :param pill: toggles the pill flag
+        :param color: the color of the badge. Default is bootstrap info color.
         :param args:
         :param kwargs:
         """
-        super(Badge, self).__init__(template_name='badge.html', *args, **kwargs)
-        self.value = value
-        self.color = color
-        self.pill = pill
+        self.attrs = {"class": ["badge", ]}
+        if pill:
+            self.update_attribute("class", ["pill"])
+        if color:
+            self.update_attribute("class", [color.value])
+        self.content = content
+        super(Badge, self).__init__(tag="span", attrs=self.attrs, content=self.content, *args, **kwargs)
 
 
 class Link(TooltipSurroundedComponent):
     """
     This class renders the a HTML Link with bootstrap depending css if needed.
     """
-    def __init__(self, url: str, value: str, color: TextColorEnum = None, open_in_new_tab: bool = False,
+    def __init__(self, url: str, content: str, color: TextColorEnum = None, open_in_new_tab: bool = False,
                  dropdown_item: bool = False, *args, **kwargs):
         """
         :param url: the href of the link
-        :param value: the value of the link
+        :param content: the content of the link
         :param color: the color of the link
         :param open_in_new_tab: toggles the open link in new tab flag
         :param dropdown_item: toggles the is dropdown item flag
         :param args:
         :param kwargs:
         """
-        super(Link, self).__init__(*args, **kwargs)
-        self.template_name = "link.html"
-        self.url = url
-        self.value = value
-        self.color = color
-        self.open_in_new_tab = open_in_new_tab
-        self.dropdown_item = dropdown_item
+        self.attrs = {"href": [url]}
+        if color:
+            self.update_attribute("class", [color.value])
+        if open_in_new_tab:
+            self.update_attribute("target", ["_blank"])
+        if dropdown_item:
+            self.update_attribute("class", ["dropdown-item"])
+        self.content = content
+        super(Link, self).__init__(tag='a', attrs=self.attrs, content=self.content, *args, **kwargs)
 
 
 class LinkButton(AbstractButton, TooltipSurroundedComponent):
@@ -184,24 +244,27 @@ class LinkButton(AbstractButton, TooltipSurroundedComponent):
     This class renders the a HTML Link as a Bootstrap Button.
     https://getbootstrap.com/docs/4.0/components/buttons/#button-tags
     """
-    def __init__(self, url: str, value: str, color: ButtonColorEnum, size: ButtonSizeEnum = None,
+    def __init__(self, url: str, content: str, color: ButtonColorEnum, size: ButtonSizeEnum = None,
                  open_in_new_tab: bool = False, *args, **kwargs):
         """
         :param url: the href of the link
-        :param value: the value of the link
+        :param content: the content of the link
         :param color: the color of the link
         :param open_in_new_tab: toggles the open link in new tab flag
         :param size: the size of the button
         :param args:
         :param kwargs:
         """
-        super(LinkButton, self).__init__(template_name="link.html", *args, **kwargs)
-        self.url = url
-        self.value = value
-        self.is_btn = True
-        self.color = color
-        self.size = size.value if size else None
-        self.open_in_new_tab = open_in_new_tab
+        self.attrs = {"href": [url],
+                      "class": ["btn"]}
+        if color:
+            self.update_attribute("class", [color.value])
+        if size:
+            self.update_attribute("class", [size.value])
+        if open_in_new_tab:
+            self.update_attribute("target", ["_blank"])
+        self.content = content
+        super(LinkButton, self).__init__(tag='a', attrs=self.attrs, content=self.content, *args, **kwargs)
 
 
 class Button(AbstractButton, TooltipSurroundedComponent):
@@ -209,12 +272,12 @@ class Button(AbstractButton, TooltipSurroundedComponent):
     This class renders the Bootstrap Button component.
     https://getbootstrap.com/docs/4.0/components/buttons/
     """
-    def __init__(self, value: str, color: ButtonColorEnum = None, size: ButtonSizeEnum = None,
+    def __init__(self, content: str, color: ButtonColorEnum = None, size: ButtonSizeEnum = None,
                  data_toggle: DataToggleEnum = None,
                  data_target: str = None, aria_expanded: bool = None, aria_controls: str = None,
-                 aria_haspopup: bool = None, additional_classes: [str] = None, *args, **kwargs):
+                 aria_haspopup: bool = None, *args, **kwargs):
         """
-        :param value: the value of the button
+        :param content: the content of the button
         :param color: the color of the button
         :param size: the size of the button
         :param data_toggle: Optional: sets the data_toggle attribute
@@ -226,23 +289,30 @@ class Button(AbstractButton, TooltipSurroundedComponent):
         :param args:
         :param kwargs:
         """
-        super(Button, self).__init__(template_name='button.html', *args, **kwargs)
-        self.value = value
-        self.color = color
-        self.size = size
-        self.data_toggle = data_toggle
-        self.data_target = data_target
-        if aria_expanded is True:
-            self.aria_expanded = 'true'
-        elif aria_expanded is False:
-            self.aria_expanded = 'false'
-        if aria_haspopup is True:
-            self.aria_haspopup = 'true'
-        elif aria_haspopup is False:
-            self.aria_haspopup = 'false'
-        self.aria_controls = aria_controls
         self.button_id = 'id_' + str(uuid.uuid4())
-        self.additional_classes = additional_classes
+        self.attrs = {"id": [self.button_id],
+                      "type": ["button"],
+                      "class": ["btn"]}
+        if color:
+            self.update_attribute("class", [color.value])
+        if size:
+            self.update_attribute("class", [size.value])
+        if data_toggle:
+            self.update_attribute("data-toggle", [data_toggle.value])
+        if data_target:
+            self.update_attribute("data-target", [f"#{data_target}"])
+        if aria_expanded is True:
+            self.update_attribute("aria-expanded", ['true'])
+        elif aria_expanded is False:
+            self.update_attribute("aria-expanded", ['false'])
+        if aria_haspopup is True:
+            self.update_attribute("aria-haspopup", ['true'])
+        elif aria_haspopup is False:
+            self.update_attribute("aria-haspopup", ['false'])
+        if aria_controls:
+            self.update_attribute("aria-controls", [aria_controls])
+        self.content = content
+        super(Button, self).__init__(tag='button', attrs=self.attrs, content=self.content, *args, **kwargs)
 
 
 class Modal(BootstrapComponent):
@@ -274,11 +344,11 @@ class Modal(BootstrapComponent):
         self.size = size
         self.modal_id = 'id_' + str(uuid.uuid4())
         self.fetch_url = fetch_url
-        self.button = Button(value=btn_value, color=btn_color, size=btn_size, data_toggle=DataToggleEnum.MODAL,
+        self.button = Button(content=btn_value, color=btn_color, size=btn_size, data_toggle=DataToggleEnum.MODAL,
                              data_target=f'{self.modal_id}')
 
 
-class CardHeader(BootstrapComponent):
+class CardHeader(Tag):
     """
     This class renders the Bootstrap Card Header component.
     https://getbootstrap.com/docs/4.0/components/card/#header-and-footer
@@ -294,23 +364,27 @@ class CardHeader(BootstrapComponent):
         :param args:
         :param kwargs:
         """
-        super(CardHeader, self).__init__(template_name='card_header.html', *args, **kwargs)
-        self.content = content
         self.header_id = 'id_' + str(header_id) if header_id else 'id_' + str(uuid.uuid4())
-        self.bg_color = bg_color
-        self.border = border
-        self.text_color = text_color
+        self.attrs = {"id": [self.header_id],
+                      "class": ["card-header"]}
+        if bg_color:
+            self.update_attribute("class", [bg_color.value])
+        if border:
+            self.update_attribute("class", [border.value])
+        if text_color:
+            self.update_attribute("class", [text_color.value])
+        self.content = content
+        super(CardHeader, self).__init__(tag="div", attrs=self.attrs, content=self.content, *args, **kwargs)
 
 
-class CardBody(BootstrapComponent):
+class CardBody(Tag):
     """
     This class renders the Bootstrap Card Body component.
     https://getbootstrap.com/docs/4.0/components/card/#content-types
     """
     def __init__(self, content: str = None, body_id: uuid = None, bg_color: BackgroundColorEnum = None,
                  text_color: TextColorEnum = None, border: BorderColorEnum = None, fetch_url: str = None,
-                 data_parent: str = None, aria_labelledby: str = None, additional_classes: [str] = None,
-                 *args, **kwargs):
+                 data_parent: str = None, aria_labelledby: str = None, *args, **kwargs):
         """
         :param content: Optional: the content of the card body
         :param body_id: Optional: the id of the body div
@@ -320,23 +394,29 @@ class CardBody(BootstrapComponent):
         :param fetch_url: Optional: is used from Modal class to set the fetch_url for this div
         :param data_parent: Optional: sets the data_parent attribute
         :param aria_labelledby: Optional: sets the aria_labelledby attribute
-        :param additional_classes: Optional: appends strings to the class html tag
         :param args:
         :param kwargs:
         """
-        super(CardBody, self).__init__(template_name='card_body.html', *args, **kwargs)
-        self.content = content
         self.body_id = 'id_' + str(body_id) if body_id else 'id_' + str(uuid.uuid4())
-        self.bg_color = bg_color
-        self.text_color = text_color
-        self.border = border
-        self.fetch_url = fetch_url
-        self.data_parent = data_parent
-        self.aria_labelledby = aria_labelledby
-        self.additional_classes = additional_classes
+        self.attrs = {"id": [self.body_id],
+                      "class": ["card-body"]}
+        if bg_color:
+            self.update_attribute("class", [bg_color.value])
+        if border:
+            self.update_attribute("class", [border.value])
+        if text_color:
+            self.update_attribute("class", [text_color.value])
+        if fetch_url:
+            self.update_attribute("data-url", [fetch_url])
+        if data_parent:
+            self.update_attribute("data-parent", [f"#{data_parent}"])
+        if aria_labelledby:
+            self.update_attribute("aria-labelledby", [aria_labelledby])
+        self.content = content
+        super(CardBody, self).__init__(tag="div", attrs=self.attrs, content=self.content, *args, **kwargs)
 
 
-class CardFooter(BootstrapComponent):
+class CardFooter(Tag):
     """
     This class renders the Bootstrap Card Footer component.
     https://getbootstrap.com/docs/4.0/components/card/#header-and-footer
@@ -351,14 +431,18 @@ class CardFooter(BootstrapComponent):
         :param args:
         :param kwargs:
         """
-        super(CardFooter, self).__init__(template_name='card_footer.html', *args, **kwargs)
+        self.attrs = {"class": ["card-footer"]}
+        if bg_color:
+            self.update_attribute("class", [bg_color.value])
+        if border:
+            self.update_attribute("class", [border.value])
+        if text_color:
+            self.update_attribute("class", [text_color.value])
         self.content = content
-        self.bg_color = bg_color
-        self.border = border
-        self.text_color = text_color
+        super(CardFooter, self).__init__(tag="div", attrs=self.attrs, content=self.content, *args, **kwargs)
 
 
-class Card(BootstrapComponent):
+class Card(Tag):
     """
     This class renders the Bootstrap Card component.
     https://getbootstrap.com/docs/4.0/components/card/
@@ -376,16 +460,24 @@ class Card(BootstrapComponent):
         :param args:
         :param kwargs:
         """
-        super(Card, self).__init__(template_name='card.html', *args, **kwargs)
-        self.body = body
-        self.header = header
-        self.footer = footer
-        self.bg_color = bg_color
-        self.border = border
-        self.text_color = text_color
+        self.attrs = {"class": ["card"]}
+        if bg_color:
+            self.update_attribute("class", [bg_color.value])
+        if border:
+            self.update_attribute("class", [border.value])
+        if text_color:
+            self.update_attribute("class", [text_color.value])
+        self.content = ''
+        if header:
+            self.content += header
+        if body:
+            self.content += body
+        if footer:
+            self.content += footer
+        super(Card, self).__init__(tag="div", attrs=self.attrs, content=self.content, *args, **kwargs)
 
 
-class Accordion(BootstrapComponent):
+class Accordion(Tag):
     """
     This class renders the Bootstrap Accordion component.
     https://getbootstrap.com/docs/4.0/components/collapse/#accordion-example
@@ -410,22 +502,21 @@ class Accordion(BootstrapComponent):
         :param args:
         :param kwargs:
         """
-        super(Accordion, self).__init__(template_name='accordion.html', *args, **kwargs)
         self.accordion_id = 'id_' + str(uuid.uuid4())
         self.card_body = CardBody(content=content,
                                   fetch_url=fetch_url,
                                   bg_color=body_bg_color,
                                   data_parent=self.accordion_id,
-                                  additional_classes=['collapse'],
                                   text_color=body_text_color,
                                   border=body_border)
+        self.card_body.update_attribute("class", ["collapse"])
 
-        self.accordion_btn = Button(value=f'<i class="fa" aria-hidden="true"></i> {btn_value}',
+        self.accordion_btn = Button(content=f'<i class="fa" aria-hidden="true"></i> {btn_value}',
                                     data_toggle=DataToggleEnum.COLLAPSE,
                                     data_target=self.card_body.body_id,
-                                    additional_classes=['collapsed', 'accordion', 'text-left'],
                                     aria_expanded=False,
                                     aria_controls=self.card_body.body_id)
+        self.accordion_btn.update_attribute("class", ['collapsed', 'accordion', 'text-left'])
         default_header_row = DefaultHeaderRow(content_left=self.accordion_btn.render(),
                                               content_center=header_center_content,
                                               content_right=header_right_content).render()
@@ -434,11 +525,16 @@ class Accordion(BootstrapComponent):
                                       bg_color=header_bg_color,
                                       text_color=header_text_color,
                                       border=header_border)
-        self.card_body.aria_labelledby = self.card_header.header_id
-        self.content = Card(header=self.card_header, body=self.card_body)
+
+        self.card_body.update_attribute("aria-labelledby", [self.card_header.header_id])
+        content = Card(header=self.card_header, body=self.card_body).render()
+
+        self.attrs = {"id": [self.accordion_id],
+                      "class": ["accordion"]}
+        super(Accordion, self).__init__(tag="div", attrs=self.attrs, content=content, *args, **kwargs)
 
 
-class ButtonGroup(BootstrapComponent):
+class ButtonGroup(Tag):
     """
     This class renders the Bootstrap Button Group component.
     https://getbootstrap.com/docs/4.0/components/button-group/
@@ -450,9 +546,13 @@ class ButtonGroup(BootstrapComponent):
         :param args:
         :param kwargs:
         """
-        super(ButtonGroup, self).__init__(template_name='button_group.html', *args, **kwargs)
-        self.aria_label = aria_label
-        self.buttons = [button.render() for button in buttons]
+        self.attrs = {"class": ["btn-group"],
+                      "role": ["group"],
+                      "aria-label": [aria_label], }
+        content = ''
+        for button in buttons:
+            content += button
+        super(ButtonGroup, self).__init__(tag="div", attrs=self.attrs, content=content, *args, **kwargs)
 
 
 class Dropdown(TooltipSurroundedComponent):
@@ -460,31 +560,32 @@ class Dropdown(TooltipSurroundedComponent):
     This class renders the Bootstrap Dropdown component.
     https://getbootstrap.com/docs/4.0/components/dropdowns/
     """
-    def __init__(self, value: str, items: [Link], color: ButtonColorEnum = ButtonColorEnum.INFO, header: str = None,
+    def __init__(self, btn_value: str, items: [Link], color: ButtonColorEnum = ButtonColorEnum.INFO, header: str = None,
                  *args, **kwargs):
         """
-        :param value: the value of the dropdown collapse button
+        :param btn_value: the value of the dropdown collapse button
         :param items: the items which should be placed in this dropdown
         :param color: the color of the dropdown collapse button
         :param header: sets one header on top of the dropdown
         :param args:
         :param kwargs:
         """
-        super(Dropdown, self).__init__(template_name='dropdown.html', *args, **kwargs)
-        self.value = value
+        super(Dropdown, self).__init__(tag="", template_name='dropdown.html', *args, **kwargs)
+        self.value = btn_value
         self.color = color
-        self.button = Button(value=value, color=color, additional_classes=['dropdown-toggle'],
+        self.button = Button(content=btn_value, color=color,
                              data_toggle=DataToggleEnum.DROPDOWN, aria_haspopup=True, aria_expanded=False)
-        self.button.data_target = self.button.button_id
+        self.button.update_attribute("class", ['dropdown-toggle'])
+        self.button.update_attribute("data-target", [f"#{self.button.button_id}"])
         self.dropdown_id = self.button.button_id
         self.items = []
         for item in items:
-            item.dropdown_item = 'dropdown-item'
+            item.update_attribute("class", ["dropdown-item"])
             self.items.append(item.render())
         self.header = header
 
 
-class ListGroupItem(BootstrapComponent):
+class ListGroupItem(Tag):
     """
     This class renders the Bootstrap List Group Item component.
     https://getbootstrap.com/docs/4.0/components/list-group/
@@ -495,11 +596,12 @@ class ListGroupItem(BootstrapComponent):
         :param args:
         :param kwargs:
         """
-        super(ListGroupItem, self).__init__(template_name='list_group_item.html', *args, **kwargs)
+        self.attrs = {"class": ["list-group-item"], }
         self.content = content
+        super(ListGroupItem, self).__init__(tag="li", attrs=self.attrs, content=self.content, *args, **kwargs)
 
 
-class ListGroup(BootstrapComponent):
+class ListGroup(Tag):
     """
     This class renders the Bootstrap List Group component.
     https://getbootstrap.com/docs/4.0/components/list-group/
@@ -510,26 +612,11 @@ class ListGroup(BootstrapComponent):
         :param args:
         :param kwargs:
         """
-        super(ListGroup, self).__init__(template_name='list_group.html', *args, **kwargs)
-        self.items = [item.render() for item in items]
-
-
-class Tag(TooltipSurroundedComponent):
-    """
-    This is a helper class for generic div rendering
-    """
-    def __init__(self, tag: str, content: str = None, additional_classes: [str] = None, *args, **kwargs):
-        """
-        :param tag: the tag name
-        :param content: the content of this div
-        :param additional_classes: Optional: appends strings to the class html tag
-        :param args:
-        :param kwargs:
-        """
-        super(Tag, self).__init__(template_name='tag.html', *args, **kwargs)
-        self.tag = tag
-        self.content = content
-        self.additional_classes = additional_classes
+        self.attrs = {"class": ["list-group"], }
+        self.content = ''
+        for item in items:
+            self.content += item
+        super(ListGroup, self).__init__(tag="ul", attrs=self.attrs, content=self.content, *args, **kwargs)
 
 
 class DefaultHeaderRow(BootstrapComponent):
@@ -550,14 +637,22 @@ class DefaultHeaderRow(BootstrapComponent):
         self.content_right = content_right
 
     def render(self, safe: bool = False) -> str:
-        col_left = Tag(tag='div', content=self.content_left, additional_classes=['col-sm', 'text-left'])
+        col_left = Tag(tag='div',
+                       content=self.content_left,
+                       attrs={"class": ['col-sm', 'text-left']})
         if self.content_center:
-            col_center = Tag(tag='div', content=self.content_center, additional_classes=['col-sm', 'text-center'])
+            col_center = Tag(tag='div',
+                             content=self.content_center,
+                             attrs={"class": ['col-sm', 'text-center']})
         else:
             col_center = ''
         if self.content_right:
-            col_right = Tag(tag='div', content=self.content_right, additional_classes=['col-sm', 'text-right'])
+            col_right = Tag(tag='div',
+                            content=self.content_right,
+                            attrs={"class": ['col-sm', 'text-right']})
         else:
             col_right = ''
         content = col_left + col_center + col_right
-        return Tag(tag='div', content=content, additional_classes=['row']).render(safe=safe)
+        return Tag(tag='div',
+                   content=content,
+                   attrs={"class": ['row']}).render(safe=safe)
