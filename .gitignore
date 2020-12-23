@@ -133,3 +133,4 @@ xunit-result.xml
 
 # npm
 node_modules/
+package-lock.json
