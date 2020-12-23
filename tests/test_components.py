@@ -215,29 +215,30 @@ class TestModal(StringDiffTestCase):
     """
 
     def test_rendering_with_modal_footer_argument(self):
-        first = Modal(title='nice modal', body='something', btn_value='nice button',
-                      btn_color=ButtonColorEnum.SUCCESS, footer='nice footer')
+        first = Modal(title='nice modal', body='something', btn_content='nice button',
+                      btn_attrs={"class": [ButtonColorEnum.SUCCESS]}, footer='nice footer')
         expr = render_to_string(template_name='components/modal/test_modal_footer.html',
                                 context={"modal_id": first.modal_id})
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
     def test_rendering_with_fade_argument(self):
-        first = Modal(title='nice modal', body='something', btn_value='nice button',
-                      btn_color=ButtonColorEnum.SUCCESS, fade=False)
+        first = Modal(title='nice modal', body='something', btn_content='nice button',
+                      btn_attrs={"class": [ButtonColorEnum.SUCCESS]}, fade=False)
         expr = render_to_string(template_name='components/modal/test_modal_fade_false.html',
                                 context={"modal_id": first.modal_id})
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
     def test_rendering_with_size_argument(self):
-        first = Modal(title='nice modal', body='something', btn_value='nice button',
-                      btn_color=ButtonColorEnum.SUCCESS, size=ModalSizeEnum.LARGE)
+        first = Modal(title='nice modal', body='something', btn_content='nice button',
+                      btn_attrs={"class": [ButtonColorEnum.SUCCESS, ]},
+                      size=ModalSizeEnum.LARGE)
         expr = render_to_string(template_name='components/modal/test_modal_size_large.html',
                                 context={"modal_id": first.modal_id})
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
     def test_rendering_with_fetch_url_argument(self):
-        first = Modal(title='nice modal', body='something', btn_value='nice button',
-                      btn_color=ButtonColorEnum.SUCCESS, fetch_url='http://example.com')
+        first = Modal(title='nice modal', body='something', btn_content='nice button',
+                      btn_attrs={"class": [ButtonColorEnum.SUCCESS]}, fetch_url='http://example.com')
         expr = render_to_string(template_name='components/modal/test_modal_fetch_url.html',
                                 context={"modal_id": first.modal_id})
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
@@ -414,54 +415,27 @@ class TestAccordion(StringDiffTestCase):
                                          "button_id": first.accordion_btn.button_id})
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
-    def test_rendering_with_header_bg_color_argument(self):
-        first = Accordion(btn_value='nice button', header_bg_color=BackgroundColorEnum.SUCCESS)
-        expr = render_to_string(template_name='components/accordion/test_accordion_header_bg_color.html',
+    def test_rendering_with_card_header_attrs_argument(self):
+        first = Accordion(btn_value='nice button', card_header_attrs={"class": [TextColorEnum.SUCCESS.value]})
+        expr = render_to_string(template_name='components/accordion/test_accordion_card_header_attrs.html',
                                 context={"accordion_id": first.accordion_id,
                                          "card_header_id": first.card_header.header_id,
                                          "card_body_id": first.card_body.body_id,
                                          "button_id": first.accordion_btn.button_id})
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
-    def test_rendering_with_body_bg_color_argument(self):
-        first = Accordion(btn_value='nice button', body_bg_color=BackgroundColorEnum.SUCCESS)
-        expr = render_to_string(template_name='components/accordion/test_accordion_body_bg_color.html',
+    def test_rendering_with_card_body_attrs_argument(self):
+        first = Accordion(btn_value='nice button', card_body_attrs={"class": [TextColorEnum.SUCCESS.value]})
+        expr = render_to_string(template_name='components/accordion/test_accordion_card_body_attrs.html',
                                 context={"accordion_id": first.accordion_id,
                                          "card_header_id": first.card_header.header_id,
                                          "card_body_id": first.card_body.body_id,
                                          "button_id": first.accordion_btn.button_id})
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
-    def test_rendering_with_header_text_color_argument(self):
-        first = Accordion(btn_value='nice button', header_text_color=TextColorEnum.SUCCESS)
-        expr = render_to_string(template_name='components/accordion/test_accordion_header_text_color.html',
-                                context={"accordion_id": first.accordion_id,
-                                         "card_header_id": first.card_header.header_id,
-                                         "card_body_id": first.card_body.body_id,
-                                         "button_id": first.accordion_btn.button_id})
-        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
-
-    def test_rendering_with_body_text_color_argument(self):
-        first = Accordion(btn_value='nice button', body_text_color=TextColorEnum.SUCCESS)
-        expr = render_to_string(template_name='components/accordion/test_accordion_body_text_color.html',
-                                context={"accordion_id": first.accordion_id,
-                                         "card_header_id": first.card_header.header_id,
-                                         "card_body_id": first.card_body.body_id,
-                                         "button_id": first.accordion_btn.button_id})
-        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
-
-    def test_rendering_with_header_border_argument(self):
-        first = Accordion(btn_value='nice button', header_border=BorderColorEnum.SUCCESS)
-        expr = render_to_string(template_name='components/accordion/test_accordion_header_border_color.html',
-                                context={"accordion_id": first.accordion_id,
-                                         "card_header_id": first.card_header.header_id,
-                                         "card_body_id": first.card_body.body_id,
-                                         "button_id": first.accordion_btn.button_id})
-        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
-
-    def test_rendering_with_body_border_argument(self):
-        first = Accordion(btn_value='nice button', body_border=BorderColorEnum.SUCCESS)
-        expr = render_to_string(template_name='components/accordion/test_accordion_body_border_color.html',
+    def test_rendering_with_card_attrs_argument(self):
+        first = Accordion(btn_value='nice button', card_attrs={"class": [TextColorEnum.SUCCESS.value]})
+        expr = render_to_string(template_name='components/accordion/test_accordion_card_attrs.html',
                                 context={"accordion_id": first.accordion_id,
                                          "card_header_id": first.card_header.header_id,
                                          "card_body_id": first.card_body.body_id,

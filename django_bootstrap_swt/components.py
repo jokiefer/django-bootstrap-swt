@@ -104,8 +104,9 @@ class Tag(BootstrapComponent):
         :param update_attrs: the dict with the update key value pairs. Value shall be a list
         :return: None
         """
-        for attribute, values in update_attrs.items():
-            self.update_attribute(attribute, values)
+        if update_attrs:
+            for attribute, values in update_attrs.items():
+                self.update_attribute(attribute, values)
 
 
 class Tooltip(Tag):
@@ -320,13 +321,12 @@ class Modal(BootstrapComponent):
     This class renders the Bootstrap Modal component.
     https://getbootstrap.com/docs/4.0/components/modal/
     """
-    def __init__(self, title: str, body: str, btn_value: str, btn_color: ButtonColorEnum,
-                 btn_size: ButtonSizeEnum = None, footer: str = None, fade: bool = True,
-                 size: ModalSizeEnum = None, fetch_url: str = None, *args, **kwargs):
+    def __init__(self, title: str, body: str, btn_content: str, btn_attrs: dict = None, footer: str = None,
+                 fade: bool = True, size: ModalSizeEnum = None, fetch_url: str = None, *args, **kwargs):
         """
         :param title: the title of the modal
         :param body: the body content of the modal
-        :param btn_value: the value of the button which opens the modal
+        :param btn_content: the value of the button which opens the modal
         :param btn_color: the color of the button which opens the modal
         :param btn_size: Optional: the size of the button which opens the modal
         :param footer: Optional: the footer content of the modal
@@ -344,8 +344,9 @@ class Modal(BootstrapComponent):
         self.size = size
         self.modal_id = 'id_' + str(uuid.uuid4())
         self.fetch_url = fetch_url
-        self.button = Button(content=btn_value, color=btn_color, size=btn_size, data_toggle=DataToggleEnum.MODAL,
+        self.button = Button(content=btn_content, data_toggle=DataToggleEnum.MODAL,
                              data_target=f'{self.modal_id}')
+        self.button.update_attributes(update_attrs=btn_attrs)
 
 
 class CardHeader(Tag):
@@ -482,21 +483,13 @@ class Accordion(Tag):
     This class renders the Bootstrap Accordion component.
     https://getbootstrap.com/docs/4.0/components/collapse/#accordion-example
     """
-    def __init__(self, btn_value: str, content: str = None, fetch_url: str = None,
-                 header_bg_color: BackgroundColorEnum = None, body_bg_color: BackgroundColorEnum = None,
-                 header_text_color: TextColorEnum = None, body_text_color: TextColorEnum = None,
-                 header_border: BorderColorEnum = None, body_border: BorderColorEnum = None,
-                 header_center_content: str = None, header_right_content: str = None, *args, **kwargs):
+    def __init__(self, btn_value: str, content: str = None, fetch_url: str = None, header_center_content: str = None,
+                 header_right_content: str = None, card_header_attrs: dict = None, card_body_attrs: dict = None,
+                 card_attrs: dict = None, button_attrs: dict = None, *args, **kwargs):
         """
         :param btn_value: the value of the button to toggle the accordion
         :param content: the content of the accordion
         :param fetch_url: Optional: the url where the content will be fetched from on accordion shown event
-        :param header_bg_color: the background color of the accordion header
-        :param body_bg_color: the background color of the accordion body
-        :param header_text_color: the text color of the accordion header
-        :param body_text_color: the text color of the accordion body
-        :param header_border: the border color of the accordion header
-        :param body_border: the border color of the accordion body
         :param header_center_content: the content of the header center placed
         :param header_right_content: the content of the header right placed
         :param args:
@@ -505,11 +498,9 @@ class Accordion(Tag):
         self.accordion_id = 'id_' + str(uuid.uuid4())
         self.card_body = CardBody(content=content,
                                   fetch_url=fetch_url,
-                                  bg_color=body_bg_color,
-                                  data_parent=self.accordion_id,
-                                  text_color=body_text_color,
-                                  border=body_border)
+                                  data_parent=self.accordion_id)
         self.card_body.update_attribute("class", ["collapse"])
+        self.card_body.update_attributes(update_attrs=card_body_attrs)
 
         self.accordion_btn = Button(content=f'<i class="fa" aria-hidden="true"></i> {btn_value}',
                                     data_toggle=DataToggleEnum.COLLAPSE,
@@ -517,21 +508,22 @@ class Accordion(Tag):
                                     aria_expanded=False,
                                     aria_controls=self.card_body.body_id)
         self.accordion_btn.update_attribute("class", ['collapsed', 'accordion', 'text-left'])
+        self.accordion_btn.update_attributes(update_attrs=button_attrs)
+
         default_header_row = DefaultHeaderRow(content_left=self.accordion_btn.render(),
                                               content_center=header_center_content,
                                               content_right=header_right_content).render()
 
-        self.card_header = CardHeader(content=default_header_row,
-                                      bg_color=header_bg_color,
-                                      text_color=header_text_color,
-                                      border=header_border)
+        self.card_header = CardHeader(content=default_header_row)
+        self.card_header.update_attributes(update_attrs=card_header_attrs)
 
         self.card_body.update_attribute("aria-labelledby", [self.card_header.header_id])
-        content = Card(header=self.card_header, body=self.card_body).render()
+        self.card = Card(header=self.card_header, body=self.card_body)
+        self.card.update_attributes(update_attrs=card_attrs)
 
         self.attrs = {"id": [self.accordion_id],
                       "class": ["accordion"]}
-        super(Accordion, self).__init__(tag="div", attrs=self.attrs, content=content, *args, **kwargs)
+        super(Accordion, self).__init__(tag="div", attrs=self.attrs, content=self.card.render(), *args, **kwargs)
 
 
 class ButtonGroup(Tag):
