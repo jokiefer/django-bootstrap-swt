@@ -553,7 +553,7 @@ class Dropdown(TooltipSurroundedComponent):
     https://getbootstrap.com/docs/4.0/components/dropdowns/
     """
     def __init__(self, btn_value: str, items: [Link], color: ButtonColorEnum = ButtonColorEnum.INFO, header: str = None,
-                 *args, **kwargs):
+                 btn_attrs: dict = None, *args, **kwargs):
         """
         :param btn_value: the value of the dropdown collapse button
         :param items: the items which should be placed in this dropdown
@@ -567,6 +567,7 @@ class Dropdown(TooltipSurroundedComponent):
         self.color = color
         self.button = Button(content=btn_value, color=color,
                              data_toggle=DataToggleEnum.DROPDOWN, aria_haspopup=True, aria_expanded=False)
+        self.button.update_attributes(update_attrs=btn_attrs)
         self.button.update_attribute("class", ['dropdown-toggle'])
         self.dropdown_id = self.button.button_id
         self.items = []
