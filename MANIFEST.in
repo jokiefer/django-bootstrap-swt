@@ -1,5 +1,6 @@
 include LICENSE
 include README.rst
+include README.md
 recursive-include django_bootstrap_swt/static *
 recursive-include django_bootstrap_swt/templates *
 recursive-include docs *

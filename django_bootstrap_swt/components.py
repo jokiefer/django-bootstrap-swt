@@ -576,7 +576,6 @@ class Dropdown(TooltipSurroundedComponent):
         self.button = Button(content=btn_value, color=color,
                              data_toggle=DataToggleEnum.DROPDOWN, aria_haspopup=True, aria_expanded=False)
         self.button.update_attribute("class", ['dropdown-toggle'])
-        self.button.update_attribute("data-target", [f"#{self.button.button_id}"])
         self.dropdown_id = self.button.button_id
         self.items = []
         for item in items:
