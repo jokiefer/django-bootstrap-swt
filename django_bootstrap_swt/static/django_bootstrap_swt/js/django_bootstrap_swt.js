@@ -1,19 +1,24 @@
 function bootstrapComponentAjaxCall( target, target_body ) {
     var fetch_url = target.attributes.getNamedItem('data-url').value;
     var tooltips = $('[data-toggle="tooltip"]', target);
+    var spinner = $('.django-bootstrap-swt-spinner', target_body);
+    var error = $('.django-bootstrap-swt-error', target_body);
 
     tooltips.tooltip("hide");
-    target_body.html( `{% include 'django_bootstrap_swt/includes/ajax_loading_spinner.html' %}` );
-
     $.ajax({
       url: fetch_url,
+      beforeSend: function() {
+        spinner.removeClass("d-none");
+      },
       success: function( data ) {
+        spinner.addClass("d-none");
         target_body.html( data );
         tooltips.tooltip();
         initAjaxComponents(target);
       },
       error: function() {
-        target_body.html( `{% include 'django_bootstrap_swt/includes/ajax_error.html' %}` );
+        spinner.addClass("d-none");
+        error.removeClass("d-none");
       },
     });
 }

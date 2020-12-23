@@ -496,6 +496,9 @@ class Accordion(Tag):
         :param kwargs:
         """
         self.accordion_id = 'id_' + str(uuid.uuid4())
+        if fetch_url:
+            content = render_to_string("django_bootstrap_swt/includes/ajax_loading_spinner.html")
+            content += render_to_string("django_bootstrap_swt/includes/ajax_error.html")
         self.card_body = CardBody(content=content,
                                   fetch_url=fetch_url,
                                   data_parent=self.accordion_id)
