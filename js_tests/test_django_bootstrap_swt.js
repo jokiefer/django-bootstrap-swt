@@ -29,3 +29,19 @@ QUnit.test("bootstrapComponentAjaxCall adds response content to target_body", fu
        done();
     }, 1000);
 });
+
+QUnit.test("bootstrapComponentAjaxCall adds response content to target_body", function(assert) {
+    // if we don't set a value the test will run endless
+    data_url.value = "something"
+    var modal = $( "#id_modal" );
+    var body = $('#id_modal_body');
+
+    bootstrapComponentAjaxCall( modal[0], body )
+
+    var done = assert.async();
+    setTimeout(function() {
+       assert.notOk($('.django-bootstrap-swt-error').hasClass("d-none"));
+       // Tell QUnit to wait for the done() call inside the timeout.
+       done();
+    }, 1000);
+});
