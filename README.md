@@ -12,9 +12,9 @@ django-bootstrap-swt simplifies the task of building HTML pages with bootstrap c
 
 Features:
 
-- Create any bootstrap component on backend level
+- Create any bootstrap component on backend level.
 - Creates uniq id's for bootstrap components like [accordion](https://getbootstrap.com/docs/4.0/components/collapse/#accordion-example) and [modal](https://getbootstrap.com/docs/4.0/components/modal/#live-demo) to avoid id conflicts in javascript.
-
+- supports async data fetching for modal and accordion components.
 
 ## Example
 
