@@ -1,41 +1,31 @@
+var data_url;
+
 QUnit.module('django-bootstrap-swt', {
-    beforeEach: function(assert) {
+    beforeEach: function() {
         $.ajax({
+            type: "GET",
             url : "modal.html",
             dataType: "html",
+            async: false,
             success : function (data) {
                 $("#qunit-fixture").html(data);
             }
         });
-
-        assert.ok($('#id_modal'))
-        assert.ok($('#id_modal_body'))
-
-        //$.ajax = function(options) {
-        //    equals(options.url, "Http://example.com");
-        //    options.success("Hello");
-        //};
+        data_url = $( "#id_modal" )[0].attributes.getNamedItem('data-url');
     }
 });
 
 QUnit.test("bootstrapComponentAjaxCall adds response content to target_body", function(assert) {
+    data_url.value = "modal-content.html"
+    var modal = $( "#id_modal" );
+    var body = $('#id_modal_body');
+
+    bootstrapComponentAjaxCall( modal[0], body )
 
     var done = assert.async();
     setTimeout(function() {
-        assert.ok(true);
-        done();
-    }, 1000);
-
-    initAjaxComponents( document );
-    bootstrapComponentAjaxCall( $('#id_modal'), $('#id_modal_body'))
-    // $('#id_modal').modal('show')
-
-    var done2 = assert.async();
-    setTimeout(function() {
-       assert.ok($('#id_modal').hasClass('show'));
-       assert.equal($('#id_modal_body').text(), 'Hello');
+       assert.equal(body.text(), 'Hello');
        // Tell QUnit to wait for the done() call inside the timeout.
-       done2();
+       done();
     }, 1000);
-
 });

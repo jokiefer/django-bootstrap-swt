@@ -3,7 +3,7 @@
     "test": "qunit js_tests/test*"
   },
   "devDependencies": {
-    "jquery": "^2.2.4",
+    "jquery": "^3.5.1",
     "qunit": "^2.13.0",
     "jsdom": "^16.4.0",
     "bootstrap": "^4.0.0",
