@@ -1,0 +1,31 @@
+{
+  "scripts": {
+    "test": "qunit js_tests/test*"
+  },
+  "devDependencies": {
+    "jquery": "^3.5.1",
+    "qunit": "^2.13.0",
+    "jsdom": "^16.4.0",
+    "bootstrap": "^4.0.0",
+    "popper.js": "^1.16.1"
+  },
+  "bugs": {
+    "url": "https://github.com/jokiefer/django-bootstrap-swt/issues"
+  },
+  "author": {
+    "name": "Jonas Kiefer",
+    "email": "jonas.kiefer@live.com"
+  },
+  "name": "django-bootstrap-swt",
+  "homepage": "https://github.com/jokiefer/django-bootstrap-swt",
+  "license": "GPL-3.0-or-later",
+  "repository": {
+    "url": "https://github.com/jokiefer/django-bootstrap-swt"
+  },
+  "version": "v0.0.0a4",
+  "bin": {
+    "name": "django-bootstrap-swt",
+    "version": "v0.0.0a4",
+    "bin": "../django_bootstrap_swt/static/django_bootstrap_swt/js/django_bootstrap_swt.js"
+  }
+}

@@ -130,3 +130,7 @@ dmypy.json
 .scannerwork/
 coverage-report.xml
 xunit-result.xml
+
+# npm
+node_modules/
+package-lock.json
