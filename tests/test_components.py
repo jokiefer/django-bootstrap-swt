@@ -274,7 +274,6 @@ class TestModal(StringDiffTestCase):
                                          "button": first.button})
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
-
     def test_rendering_with_fade_argument(self):
         first = Modal(title='nice modal', btn_content='nice button',
                       btn_attrs={"class": [ButtonColorEnum.SUCCESS.value]}, fade=False)
@@ -312,6 +311,13 @@ class TestModal(StringDiffTestCase):
         first = Modal(title='nice modal', btn_content='nice button',
                       btn_attrs={"class": [ButtonColorEnum.SUCCESS.value]}, fetch_url='http://example.com')
         expr = render_to_string(template_name='components/modal/test_modal_fetch_url.html',
+                                context={"modal_id": first.modal_id,
+                                         "button": first.button})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_btn_tooltip_argument(self):
+        first = Modal(title='nice modal', btn_content='nice button', btn_tooltip='nice tooltip')
+        expr = render_to_string(template_name='components/modal/test_modal_btn_tooltip.html',
                                 context={"modal_id": first.modal_id,
                                          "button": first.button})
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)

@@ -1,5 +1,5 @@
 from urllib import parse
-from django_bootstrap_swt.components import BootstrapComponent, Tag, Modal
+from django_bootstrap_swt.components import BootstrapComponent, Modal
 
 
 class RenderHelper:

@@ -421,7 +421,7 @@ class Modal(BootstrapComponent):
         self.backdrop = backdrop
         self.clos_on_esc = clos_on_esc
         self.button = Button(content=btn_content, data_toggle=DataToggleEnum.MODAL,
-                             data_target=f'{self.modal_id}', btn_tooltip=btn_tooltip)
+                             data_target=f'{self.modal_id}', tooltip=btn_tooltip)
         self.button.update_attributes(update_attrs=btn_attrs)
         self.rendered_button = None
 
