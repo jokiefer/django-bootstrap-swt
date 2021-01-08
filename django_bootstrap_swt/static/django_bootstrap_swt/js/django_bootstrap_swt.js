@@ -25,7 +25,7 @@ function bootstrapComponentAjaxCall( target, target_body ) {
 
 function modalAjaxInit( parent ) {
     $(".modal[data-url]", parent).on('shown.bs.modal', function( event ) {
-        bootstrapComponentAjaxCall( event.currentTarget, $( '.modal-body', event.currentTarget ) );
+        bootstrapComponentAjaxCall( event.currentTarget, $( '.modal-content', event.currentTarget ) );
     });
 }
 

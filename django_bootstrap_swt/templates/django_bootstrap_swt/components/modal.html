@@ -1,23 +1,14 @@
-<div id="{{modal_id}}" class="modal{% if fade %} fade{% endif %}" tabindex="-1" role="document"{% if fetch_url %} data-url="{{fetch_url}}"{% endif %}>
+{{ rendered_button|safe }}
+<div id="{{modal_id}}" class="modal{% if fade %} fade{% endif %}" tabindex="-1" role="document"{% if fetch_url %} data-url="{{fetch_url}}"{% endif %}{% if not backdrop %} data-backdrop="static"{% endif %}{% if not clos_on_esc %} data-keyboard="false"{% endif %}>
   <div class="modal-dialog{% if size %} {{size.value}}{% endif%}">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">{{title|safe}}</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div id="{{modal_id}}_body" class="modal-body">
-        {% if fetch_url %}
+      {% if fetch_url %}
         {% include 'django_bootstrap_swt/includes/ajax_loading_spinner.html' %}
         {% include 'django_bootstrap_swt/includes/ajax_error.html' %}
-        {% endif %}
-        {{body|safe}}
-      </div>
-      {% if footer %}
-      <div class="modal-footer">
-        {{footer}}
-      </div>
+      {% else %}
+        {{ header|safe }}
+        {{ body|safe }}
+        {{ footer|safe }}
       {% endif %}
     </div>
   </div>
