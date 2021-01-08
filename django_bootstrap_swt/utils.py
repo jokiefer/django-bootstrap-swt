@@ -1,5 +1,5 @@
 from urllib import parse
-from django_bootstrap_swt.components import BootstrapComponent, Tag
+from django_bootstrap_swt.components import BootstrapComponent, Tag, Modal
 
 
 class RenderHelper:
@@ -52,7 +52,10 @@ class RenderHelper:
             if self.update_url_qs:
                 self.update_queryparams(item=item)
             if self.update_attrs:
-                item.update_attributes(update_attrs=self.update_attrs)
+                if isinstance(item, Modal):
+                    item.button.update_attributes(update_attrs=self.update_attrs)
+                else:
+                    item.update_attributes(update_attrs=self.update_attrs)
             rendered_string = item.render(safe=safe)
         return rendered_string
 

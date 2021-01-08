@@ -2,7 +2,7 @@ import uuid
 from abc import ABC
 from django.template.loader import render_to_string
 from django_bootstrap_swt.enums import ButtonColorEnum, TooltipPlacementEnum, ProgressColorEnum, BadgeColorEnum, \
-    ButtonSizeEnum, ModalSizeEnum, TextColorEnum, BackgroundColorEnum, BorderColorEnum, DataToggleEnum
+    ButtonSizeEnum, ModalSizeEnum, TextColorEnum, BackgroundColorEnum, BorderColorEnum, DataToggleEnum, HeadingsEnum
 
 PATH_TO_TEMPLATES = "django_bootstrap_swt/components/"
 
@@ -240,7 +240,7 @@ class Link(TooltipSurroundedComponent):
         super(Link, self).__init__(tag='a', attrs=self.attrs, content=self.content, *args, **kwargs)
 
 
-class LinkButton(AbstractButton, TooltipSurroundedComponent):
+class LinkButton(TooltipSurroundedComponent, AbstractButton):
     """
     This class renders the a HTML Link as a Bootstrap Button.
     https://getbootstrap.com/docs/4.0/components/buttons/#button-tags
@@ -268,7 +268,7 @@ class LinkButton(AbstractButton, TooltipSurroundedComponent):
         super(LinkButton, self).__init__(tag='a', attrs=self.attrs, content=self.content, *args, **kwargs)
 
 
-class Button(AbstractButton, TooltipSurroundedComponent):
+class Button(TooltipSurroundedComponent, AbstractButton):
     """
     This class renders the Bootstrap Button component.
     https://getbootstrap.com/docs/4.0/components/buttons/
@@ -316,37 +316,123 @@ class Button(AbstractButton, TooltipSurroundedComponent):
         super(Button, self).__init__(tag='button', attrs=self.attrs, content=self.content, *args, **kwargs)
 
 
+class ModalHeader(Tag):
+    """
+    This class renders the Bootstrap ModalHeader component.
+    https://getbootstrap.com/docs/4.0/components/modal/
+    """
+    def __init__(self, content: str, heading_size: HeadingsEnum = HeadingsEnum.H5, closeable: bool = True, *args,
+                 **kwargs):
+        """
+        :param content: the content of the header
+        :param heading_size: the size of the content
+        :param closeable: toggle to show or show not close button on header
+        """
+        self.attrs = {"class": ["modal-header"]}
+
+        self.content = Tag(tag=heading_size.value, attrs={"class": ["modal-title"]}, content=content).render()
+        if closeable:
+            close_sym = Tag(tag='span', attrs={"aria-hidden": ["true"]}, content="&times;").render()
+            self.content += Tag(tag='button',
+                                attrs={"class": ["close"],
+                                       "type": ["button"],
+                                       "data-dismiss": ["modal"],
+                                       "aria-label": ["Close"]},
+                                content=close_sym, )
+
+        super(ModalHeader, self).__init__(tag="div", attrs=self.attrs, content=self.content, *args, **kwargs)
+
+
+class ModalBody(Tag):
+    """
+    This class renders the Bootstrap ModalBody component.
+    https://getbootstrap.com/docs/4.0/components/modal/
+    """
+    def __init__(self, content: str, *args, **kwargs):
+        """
+        :param content: the content of the header
+        :param heading_size: the size of the content
+        :param closeable: toggle to show or show not close button on header
+        """
+        self.attrs = {"class": ["modal-body"]}
+        self.content = content
+        super(ModalBody, self).__init__(tag="div", attrs=self.attrs, content=self.content, *args, **kwargs)
+
+
+class ModalFooter(Tag):
+    """
+    This class renders the Bootstrap ModalBody component.
+    https://getbootstrap.com/docs/4.0/components/modal/
+    """
+    def __init__(self, content: str, *args, **kwargs):
+        """
+        :param content: the content of the header
+        :param heading_size: the size of the content
+        :param closeable: toggle to show or show not close button on header
+        """
+        self.attrs = {"class": ["modal-footer"]}
+        self.content = content
+        super(ModalFooter, self).__init__(tag="div", attrs=self.attrs, content=self.content, *args, **kwargs)
+
+
 class Modal(BootstrapComponent):
     """
     This class renders the Bootstrap Modal component.
     https://getbootstrap.com/docs/4.0/components/modal/
     """
-    def __init__(self, title: str, body: str, btn_content: str, btn_attrs: dict = None, footer: str = None,
-                 fade: bool = True, size: ModalSizeEnum = None, fetch_url: str = None, *args, **kwargs):
+    def __init__(self, btn_content: str, header=None, body=None, btn_attrs: dict = None,
+                 footer=None, fade: bool = True, size: ModalSizeEnum = None, fetch_url: str = None,
+                 btn_tooltip: str = None, backdrop: bool = True, clos_on_esc: bool = True,
+                 *args, **kwargs):
         """
-        :param title: the title of the modal
-        :param body: the body content of the modal
         :param btn_content: the value of the button which opens the modal
-        :param btn_color: the color of the button which opens the modal
+        :param header: Optional: the title of the modal
+        :param body: Optional: the body content of the modal
+        :param btn_attrs: Optional: the dict which contains all attributes to update the button attributes
         :param btn_size: Optional: the size of the button which opens the modal
         :param footer: Optional: the footer content of the modal
         :param fade: Optional: toggles the fade flag
         :param size: Optional: the size of the modal
         :param fetch_url: Optional: the url where the content will be fetched from on modal shown event
+        :param btn_tooltip: Optional: the tooltip of the modal toggle button
         :param args:
         :param kwargs:
         """
         super(Modal, self).__init__(template_name="modal.html", *args, **kwargs)
-        self.title = title
-        self.body = body
-        self.footer = footer
+        self.modal_id = 'id_' + str(uuid.uuid4())
+        if header and isinstance(header, str):
+            self.header = ModalHeader(content=header)
+            self.header.update_attribute(attribute="id", values=[f"{self.modal_id}_header"])
+        elif header and isinstance(header, ModalHeader):
+            self.header = header
+        if body and isinstance(body, str):
+            self.body = ModalBody(content=body)
+            self.body.update_attribute(attribute="id", values=[f"{self.modal_id}_body"])
+        elif body and isinstance(body, ModalBody):
+            self.body = body
+        if footer and isinstance(footer, str):
+            self.footer = ModalFooter(content=footer)
+            self.footer.update_attribute(attribute="id", values=[f"{self.modal_id}_footer"])
+        elif footer and isinstance(footer, ModalFooter):
+            self.footer = footer
         self.fade = fade
         self.size = size
-        self.modal_id = 'id_' + str(uuid.uuid4())
         self.fetch_url = fetch_url
+        self.backdrop = backdrop
+        self.clos_on_esc = clos_on_esc
         self.button = Button(content=btn_content, data_toggle=DataToggleEnum.MODAL,
-                             data_target=f'{self.modal_id}')
+                             data_target=f'{self.modal_id}', btn_tooltip=btn_tooltip)
         self.button.update_attributes(update_attrs=btn_attrs)
+        self.rendered_button = None
+
+    def render(self, safe: bool = False) -> str:
+        """Renders a template with self.__dict__ as context
+
+        :param safe: switches if the rendered component is returned as SafeString or str
+        :return: rendered template as string | SafeString
+        """
+        self.rendered_button = self.button.render()
+        return super().render(safe=safe)
 
 
 class CardHeader(Tag):

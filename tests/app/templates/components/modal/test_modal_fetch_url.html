@@ -1,20 +1,10 @@
+<button id="{{button.button_id}}" type="button" class="btn btn-success" data-toggle="modal" data-target="#{{modal_id}}">nice button</button>
 <div id="{{modal_id}}" class="modal fade" tabindex="-1" role="document" data-url="http://example.com">
   <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">nice modal</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div id="{{modal_id}}_body" class="modal-body">
-        {% if True %}
+      {% if True %}
         {% include 'django_bootstrap_swt/includes/ajax_loading_spinner.html' %}
         {% include 'django_bootstrap_swt/includes/ajax_error.html' %}
-        {% endif %}
-        something
-      </div>
-      {% if False %}
       {% endif %}
     </div>
   </div>

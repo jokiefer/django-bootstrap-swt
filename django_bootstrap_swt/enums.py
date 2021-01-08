@@ -4,6 +4,7 @@ from enum import Enum
 class ModalSizeEnum(Enum):
     LARGE = "modal-lg"
     SMALL = "modal-sm"
+    EXTRALARGE = "modal-xl"
 
 
 class ButtonColorEnum(Enum):
@@ -95,3 +96,12 @@ class DataToggleEnum(Enum):
     MODAL = "modal"
     DROPDOWN = "dropdown"
     TOOLTIP = "tooltip"
+
+
+class HeadingsEnum(Enum):
+    H1 = "h1"
+    H2 = "h2"
+    H3 = "h3"
+    H4 = "h4"
+    H5 = "h5"
+    H6 = "h6"

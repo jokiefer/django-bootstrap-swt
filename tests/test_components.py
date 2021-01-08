@@ -4,7 +4,7 @@ from django.template.loader import render_to_string
 from django.utils.safestring import SafeString
 from django_bootstrap_swt.components import BootstrapComponent, ProgressBar, Badge, Tooltip, \
     TooltipSurroundedComponent, Modal, Accordion, LinkButton, Link, Button, ButtonGroup, Dropdown, ListGroupItem, \
-    ListGroup, CardHeader, CardFooter, CardBody, Card, Tag
+    ListGroup, CardHeader, CardFooter, CardBody, Card, Tag, ModalFooter, ModalHeader, ModalBody
 from django_bootstrap_swt.enums import ProgressColorEnum, BadgeColorEnum, ButtonColorEnum, \
     ButtonSizeEnum, ModalSizeEnum, TextColorEnum, DataToggleEnum, BackgroundColorEnum, BorderColorEnum, \
     TooltipPlacementEnum
@@ -210,37 +210,110 @@ class TestButton(StringDiffTestCase):
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
 
+class TestModalHeader(StringDiffTestCase):
+    """ This class contains all needed tests for testing ModalHeader class
+    """
+    def test_rendering_with_closeable_argument(self):
+        first = ModalHeader(content="nice header", closeable=False)
+        expr = render_to_string(template_name='components/modal_header/test_modal_header_closeable_false.html')
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+
 class TestModal(StringDiffTestCase):
     """ This class contains all needed tests for testing Modal class
     """
 
-    def test_rendering_with_modal_footer_argument(self):
-        first = Modal(title='nice modal', body='something', btn_content='nice button',
-                      btn_attrs={"class": [ButtonColorEnum.SUCCESS]}, footer='nice footer')
-        expr = render_to_string(template_name='components/modal/test_modal_footer.html',
-                                context={"modal_id": first.modal_id})
+    def test_rendering_with_modal_header_str_argument(self):
+        first = Modal(title='nice modal', btn_content='nice button',
+                      btn_attrs={"class": [ButtonColorEnum.SUCCESS.value]}, header='nice header')
+        expr = render_to_string(template_name='components/modal/test_modal_header_str.html',
+                                context={"modal_id": first.modal_id,
+                                         "button": first.button})
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
+    def test_rendering_with_modal_header_ModalHeader_argument(self):
+        header = ModalHeader(content="nice header")
+        first = Modal(title='nice modal', btn_content='nice button',
+                      btn_attrs={"class": [ButtonColorEnum.SUCCESS.value]}, header=header)
+        expr = render_to_string(template_name='components/modal/test_modal_header_ModalHeader.html',
+                                context={"modal_id": first.modal_id,
+                                         "button": first.button})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_modal_body_str_argument(self):
+        first = Modal(title='nice modal', btn_content='nice button',
+                      btn_attrs={"class": [ButtonColorEnum.SUCCESS.value]}, body='nice body')
+        expr = render_to_string(template_name='components/modal/test_modal_body_str.html',
+                                context={"modal_id": first.modal_id,
+                                         "button": first.button})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_modal_body_ModalBody_argument(self):
+        body = ModalBody(content="nice body")
+        first = Modal(title='nice modal', btn_content='nice button',
+                      btn_attrs={"class": [ButtonColorEnum.SUCCESS.value]}, body=body)
+        expr = render_to_string(template_name='components/modal/test_modal_body_ModalBody.html',
+                                context={"modal_id": first.modal_id,
+                                         "button": first.button})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_modal_footer_str_argument(self):
+        first = Modal(title='nice modal', btn_content='nice button',
+                      btn_attrs={"class": [ButtonColorEnum.SUCCESS.value]}, footer='nice footer')
+        expr = render_to_string(template_name='components/modal/test_modal_footer_str.html',
+                                context={"modal_id": first.modal_id,
+                                         "button": first.button})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_modal_footer_ModelFooter_argument(self):
+        footer = ModalFooter(content="nice footer")
+        first = Modal(title='nice modal', btn_content='nice button',
+                      btn_attrs={"class": [ButtonColorEnum.SUCCESS.value]}, footer=footer)
+        expr = render_to_string(template_name='components/modal/test_modal_footer_ModalFooter.html',
+                                context={"modal_id": first.modal_id,
+                                         "button": first.button})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+
     def test_rendering_with_fade_argument(self):
-        first = Modal(title='nice modal', body='something', btn_content='nice button',
-                      btn_attrs={"class": [ButtonColorEnum.SUCCESS]}, fade=False)
+        first = Modal(title='nice modal', btn_content='nice button',
+                      btn_attrs={"class": [ButtonColorEnum.SUCCESS.value]}, fade=False)
         expr = render_to_string(template_name='components/modal/test_modal_fade_false.html',
-                                context={"modal_id": first.modal_id})
+                                context={"modal_id": first.modal_id,
+                                         "button": first.button})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_backdrop_argument(self):
+        first = Modal(title='nice modal', btn_content='nice button',
+                      btn_attrs={"class": [ButtonColorEnum.SUCCESS.value]}, backdrop=False)
+        expr = render_to_string(template_name='components/modal/test_modal_backdrop_false.html',
+                                context={"modal_id": first.modal_id,
+                                         "button": first.button})
+        self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
+
+    def test_rendering_with_close_on_esc_argument(self):
+        first = Modal(title='nice modal', btn_content='nice button',
+                      btn_attrs={"class": [ButtonColorEnum.SUCCESS.value]}, clos_on_esc=False)
+        expr = render_to_string(template_name='components/modal/test_modal_close_on_esc_false.html',
+                                context={"modal_id": first.modal_id,
+                                         "button": first.button})
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
     def test_rendering_with_size_argument(self):
         first = Modal(title='nice modal', body='something', btn_content='nice button',
-                      btn_attrs={"class": [ButtonColorEnum.SUCCESS, ]},
+                      btn_attrs={"class": [ButtonColorEnum.SUCCESS.value, ]},
                       size=ModalSizeEnum.LARGE)
         expr = render_to_string(template_name='components/modal/test_modal_size_large.html',
-                                context={"modal_id": first.modal_id})
+                                context={"modal_id": first.modal_id,
+                                         "button": first.button})
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
     def test_rendering_with_fetch_url_argument(self):
-        first = Modal(title='nice modal', body='something', btn_content='nice button',
-                      btn_attrs={"class": [ButtonColorEnum.SUCCESS]}, fetch_url='http://example.com')
+        first = Modal(title='nice modal', btn_content='nice button',
+                      btn_attrs={"class": [ButtonColorEnum.SUCCESS.value]}, fetch_url='http://example.com')
         expr = render_to_string(template_name='components/modal/test_modal_fetch_url.html',
-                                context={"modal_id": first.modal_id})
+                                context={"modal_id": first.modal_id,
+                                         "button": first.button})
         self.assertMultiLineEqual(first=first.render(safe=True), second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
 
