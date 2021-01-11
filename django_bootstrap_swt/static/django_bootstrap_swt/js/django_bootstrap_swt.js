@@ -4,15 +4,28 @@ function bootstrapComponentAjaxCall( target, target_body ) {
     var spinner = $('.django-bootstrap-swt-spinner', target_body);
     var error = $('.django-bootstrap-swt-error', target_body);
 
+    const modal = target.querySelector("div").closest(".modal")
+    var fetched_content;
+    if ( modal ){
+        fetched_content = $('#id_' + modal.id + '_fetched_content');
+    }
+
     tooltips.tooltip("hide");
     $.ajax({
       url: fetch_url,
       beforeSend: function() {
         spinner.removeClass("d-none");
+        if ( modal ){
+            fetched_content.html( "" );
+        }
       },
       success: function( data ) {
         spinner.addClass("d-none");
-        target_body.html( data );
+        if ( fetched_content ){
+            fetched_content.html( data );
+        } else {
+            target_body.html( data );
+        }
         tooltips.tooltip();
         initAjaxComponents(target);
       },
