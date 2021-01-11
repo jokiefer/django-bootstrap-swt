@@ -1,13 +1,11 @@
-function bootstrapComponentAjaxCall( target, target_body ) {
+function bootstrapComponentAjaxCall( target, target_body , modal) {
     var fetch_url = target.attributes.getNamedItem('data-url').value;
     var tooltips = $('[data-toggle="tooltip"]', target);
-    var spinner = $('.django-bootstrap-swt-spinner', target_body);
-    var error = $('.django-bootstrap-swt-error', target_body);
+    const spinner = target_body.children(".django-bootstrap-swt-spinner");
+    const error = target_body.closest(".django-bootstrap-swt-error");
 
-    const modal = target.querySelector("div").closest(".modal")
-    var fetched_content;
     if ( modal ){
-        fetched_content = $('#id_' + modal.id + '_fetched_content');
+        target_body = $(".modal-fetched-content", target_body);
     }
 
     tooltips.tooltip("hide");
@@ -15,17 +13,11 @@ function bootstrapComponentAjaxCall( target, target_body ) {
       url: fetch_url,
       beforeSend: function() {
         spinner.removeClass("d-none");
-        if ( modal ){
-            fetched_content.html( "" );
-        }
       },
       success: function( data ) {
         spinner.addClass("d-none");
-        if ( fetched_content ){
-            fetched_content.html( data );
-        } else {
-            target_body.html( data );
-        }
+        error.addClass("d-none");
+        target_body.html( data );
         tooltips.tooltip();
         initAjaxComponents(target);
       },
@@ -38,13 +30,16 @@ function bootstrapComponentAjaxCall( target, target_body ) {
 
 function modalAjaxInit( parent ) {
     $(".modal[data-url]", parent).on('shown.bs.modal', function( event ) {
-        bootstrapComponentAjaxCall( event.currentTarget, $( '.modal-content', event.currentTarget ) );
+        bootstrapComponentAjaxCall( event.currentTarget, $( '.modal-content', event.currentTarget ), true );
+    });
+    $(".modal[data-url", parent).on('hidden.bs.modal', function( event ){
+        $('.modal-fetched-content', event.currentTarget).html("");
     });
 }
 
 function collapseAjaxInit( parent ) {
     $(".collapse[data-url]", parent).on('shown.bs.collapse', function( event ) {
-        bootstrapComponentAjaxCall( event.target, $( event.target ) );
+        bootstrapComponentAjaxCall( event.target, $( event.target ), false );
     });
 }
 
