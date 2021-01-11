@@ -2,7 +2,9 @@ import uuid
 from abc import ABC
 from django.template.loader import render_to_string
 from django_bootstrap_swt.enums import ButtonColorEnum, TooltipPlacementEnum, ProgressColorEnum, BadgeColorEnum, \
-    ButtonSizeEnum, ModalSizeEnum, TextColorEnum, BackgroundColorEnum, BorderColorEnum, DataToggleEnum, HeadingsEnum
+    ButtonSizeEnum, ModalSizeEnum, TextColorEnum, BackgroundColorEnum, BorderColorEnum, DataToggleEnum, HeadingsEnum, \
+    AlertEnum
+from django.utils.translation import gettext as _
 
 PATH_TO_TEMPLATES = "django_bootstrap_swt/components/"
 
@@ -155,6 +157,27 @@ class TooltipSurroundedComponent(Tag, ABC):
             return Tooltip(title=self.tooltip, surrounded_component=self_rendered,
                            placement=self.tooltip_placement).render(safe=safe)
         return self_rendered
+
+
+class Alert(Tag):
+    """
+    This class renders the Bootstrap Alert component.
+    https://getbootstrap.com/docs/4.0/components/alerts/
+    """
+    def __init__(self, msg: str, alert_type: AlertEnum, dismiss: bool = True, *args, **kwargs):
+        self.attrs = {"class": ["alert", alert_type.value, "fade", "show"],
+                      "role": ["alert"]}
+
+        if dismiss:
+            self.update_attribute(attribute="class", values=["alert-dismissible"])
+            times = Tag(tag="span", attrs={"aria-hidden": ["true"]}, content="&times;").render()
+            dismiss_btn = Tag(tag="button", attrs={"type": ["button"],
+                                                   "class": ["close"],
+                                                   "data-dismiss": ["alert"],
+                                                   "aria-label": [_("Close")]}, content=times)
+            msg += dismiss_btn
+
+        super(Alert, self).__init__(tag="div", attrs=self.attrs, content=msg, *args, **kwargs)
 
 
 class ProgressBar(Tag):
