@@ -5,6 +5,7 @@
       {% if True %}
         {% include 'django_bootstrap_swt/includes/ajax_loading_spinner.html' %}
         {% include 'django_bootstrap_swt/includes/ajax_error.html' %}
+        <div id="{{modal_id}}_fetched_content"></div>
       {% endif %}
     </div>
   </div>
