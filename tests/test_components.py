@@ -4,10 +4,10 @@ from django.template.loader import render_to_string
 from django.utils.safestring import SafeString
 from django_bootstrap_swt.components import BootstrapComponent, ProgressBar, Badge, Tooltip, \
     TooltipSurroundedComponent, Modal, Accordion, LinkButton, Link, Button, ButtonGroup, Dropdown, ListGroupItem, \
-    ListGroup, CardHeader, CardFooter, CardBody, Card, Tag, ModalFooter, ModalHeader, ModalBody
+    ListGroup, CardHeader, CardFooter, CardBody, Card, Tag, ModalFooter, ModalHeader, ModalBody, Alert
 from django_bootstrap_swt.enums import ProgressColorEnum, BadgeColorEnum, ButtonColorEnum, \
     ButtonSizeEnum, ModalSizeEnum, TextColorEnum, DataToggleEnum, BackgroundColorEnum, BorderColorEnum, \
-    TooltipPlacementEnum
+    TooltipPlacementEnum, AlertEnum
 
 MSG_TYPE_AFTER_CONCATENATING_WRONG = 'The type after concatenating is not str.'
 MSG_STRING_CONTENT_WRONG_AFTER_CONCATENATING = 'The content of the string is wrong after concatenating.'
@@ -99,6 +99,16 @@ class TestInheritance(TestCase):
         for Component in BOOTSTRAP_COMPONENT_LIST:
             self.assertTrue(expr=issubclass(Component, BootstrapComponent),
                             msg=MSG_SUBCLASS_DOES_NOT_INHERIT_FROM_BOOTSTRAP_COMPONENT.format(Component.__name__))
+
+
+class TestAlert(StringDiffTestCase):
+    """ This class contains all needed tests for testing ProgressBar class
+    """
+
+    def test_rendering_with_alert_type_argument(self):
+        alert = Alert(msg="nice alert", alert_type=AlertEnum.SUCCESS).render(safe=True)
+        expr = render_to_string(template_name='components/alert/test_alert_type_success.html', context={})
+        self.assertMultiLineEqual(first=alert, second=expr, msg=MSG_RENDERED_TEMPLATE_IS_NOT_CORRECT)
 
 
 class TestProgressBar(StringDiffTestCase):

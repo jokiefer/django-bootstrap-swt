@@ -1,6 +1,17 @@
 from enum import Enum
 
 
+class AlertEnum(Enum):
+    PRIMARY = "alert-primary"
+    SECONDARY = "alert-secondary"
+    SUCCESS = "alert-success"
+    DANGER = "alert-danger"
+    WARNING = "alert-warning"
+    INFO = "alert-info"
+    LIGHT = "alert-light"
+    DARK = "alert-dark"
+
+
 class ModalSizeEnum(Enum):
     LARGE = "modal-lg"
     SMALL = "modal-sm"
